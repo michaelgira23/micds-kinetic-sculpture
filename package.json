@@ -1,0 +1,28 @@
+{
+  "name": "micds-kinetic-sculpture",
+  "version": "1.0.0",
+  "description": "Interface for creating and executing formations for a sculpture Ehan made",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelgira23/micds-kinetic-sculpture.git"
+  },
+  "keywords": [
+    "micds",
+    "kinetic",
+    "sculpture"
+  ],
+  "author": "Michael Gira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelgira23/micds-kinetic-sculpture/issues"
+  },
+  "homepage": "https://github.com/michaelgira23/micds-kinetic-sculpture#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  },
+  "devDependencies": {}
+}
