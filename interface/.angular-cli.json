@@ -19,7 +19,7 @@
 				"styles.scss"
 			],
 			"scripts": [
-				"../node_modules/xeogl/build/1.0.0/xeogl-1.0.0.min.js"
+				"../node_modules/xeogl/build/xeogl.min.js"
 			],
 			"environmentSource": "environments/environment.ts",
 			"environments": {

@@ -1,0 +1,37 @@
+:host {
+	// height: 100%;
+	// display: block;
+}
+
+.layout-container {
+	height: 100%;
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+
+	.navbar {
+		flex-grow: 0;
+	}
+
+	.content-container {
+		flex-grow: 1;
+	}
+}
+
+.content-container {
+	display: flex;
+
+	.sidebar {
+		flex-grow: 0;
+	}
+
+	app-visualizer {
+		flex-grow: 1;
+	}
+}
+
+.sidebar {
+	padding: 1rem;
+	background: grey;
+}
