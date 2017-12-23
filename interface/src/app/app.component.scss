@@ -1,11 +1,7 @@
-:host {
-	// height: 100%;
-	// display: block;
-}
-
 .layout-container {
 	height: 100%;
 	position: relative;
+	overflow: hidden;
 
 	display: flex;
 	flex-direction: column;
