@@ -12,7 +12,7 @@ declare const xeogl: any;
 export class VisualizerComponent implements OnInit {
 
 	@ViewChild('container') container: ElementRef;
-	@ViewChild('canvas') canvas: ElementRef;
+	@ViewChild('visualizer') canvas: ElementRef;
 
 	scene: any;
 
@@ -22,6 +22,7 @@ export class VisualizerComponent implements OnInit {
 	constructor() { }
 
 	ngOnInit() {
+		// Resize canvas to fit container
 		const resizeCanvas = () => {
 			const width = this.container.nativeElement.clientWidth;
 			const height = this.container.nativeElement.clientHeight;
@@ -29,79 +30,35 @@ export class VisualizerComponent implements OnInit {
 			this.canvas.nativeElement.width = width;
 			this.canvas.nativeElement.height = height;
 		};
+		resizeCanvas();
 		new ResizeSensor(this.container.nativeElement, resizeCanvas);
 
-		console.log('xeo', xeogl);
-
-		this.scene = new xeogl.Scene({
-			canvas: this.canvas.nativeElement
+		xeogl.scene = new xeogl.Scene({
+			canvas: this.canvas.nativeElement,
+			// backgroundColor: [0.3, 0.6, 0.9]
+			// transparent: true
+		});
+		new xeogl.Entity({
+			geometry: new xeogl.TorusGeometry({
+				radius: 1.0,
+				tube: 0.3,
+				radialSegments: 120,
+				tubeSegments: 60
+			}),
+			material: new xeogl.MetallicMaterial({
+				baseColorMap: new xeogl.Texture({
+					src: '/assets/textures/uvGrid2.jpg'
+				})
+			})
+		});
+		xeogl.scene.camera.view.eye = [0, 0, -4];
+		xeogl.scene.on('tick', function () {
+			this.camera.view.rotateEyeY(0.5);
+			// this.camera.view.rotateEyeX(0.3);
 		});
 
 		// Allow user camera control
 		new xeogl.InputControl();
-
-		const geometry = new xeogl.BoxGeometry({
-			xSize: 1,
-			ySize: 1,
-			zSize: 1
-		});
-
-		const material = new xeogl.MetallicMaterial({
-			baseColor: [0.56, 0.57, 0.58],
-			metallic: 1,
-			roughness: 0.5
-		});
-
-		const entity = new xeogl.Entity({
-			geometry,
-			material
-		});
-
-		entity.scene.on('tick', () => {
-			entity.camera.view.rotateEyeY(1.0);
-		});
 	}
-
-	// resizeCanvas() {
-	// 	console.log(this.container.nativeElement);
-	// 	this.viewCanvas.nativeElement.width  = this.container.nativeElement.innerWidth;
-	// 	this.viewCanvas.nativeElement.height = this.container.nativeElement.innerHeight;
-	// }
-
-	// draw() {
-	// 	console.log('create scene');
-	// 	this.scene = new xeogl.Scene({
-	// 		// canvas: this.viewCanvas.nativeElement,
-	// 		// canvas: 'view',
-	// 		// transparent: true
-	// 	});
-	//
-	// 	// Allow user camera control
-	// 	new xeogl.InputControl();
-	//
-	// 	const box = new xeogl.BoxGeometry({
-	// 		xSize: 1,
-	// 		ySize: 1,
-	// 		zSize: 1
-	// 	});
-	//
-		// const material = new xeogl.MetallicMaterial({
-		// 	baseColor: [0.56, 0.57, 0.58],
-		// 	metallic: 1,
-		// 	roughness: 0.5
-		// });
-	//
-		// const entity = new xeogl.Entity({
-		// 	geometry: box,
-		// 	material
-		// });
-	//
-	// 	console.log(xeogl);
-	// 	// console.log(xeogl, xeogl.InputControl);
-	//
-	// 	// entity.scene.on('tick', () => {
-	// 	// 	entity.camera.view.rotateEyeY(1.0);
-	// 	// });
-	// }
 
 }
