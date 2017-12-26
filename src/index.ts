@@ -1,10 +1,10 @@
 const port = 1550;
 
-const express = require('express');
+import * as express from 'express';
 const app = express();
 
 app.get('/', (req, res) => {
-	res.end('l');
+	res.end('L');
 });
 
 app.listen(port, () => console.log(`Server listening on *:${port}`));

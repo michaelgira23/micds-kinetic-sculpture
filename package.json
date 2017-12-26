@@ -4,7 +4,11 @@
   "description": "Interface for creating and executing formations for a sculpture Ehan made",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "tslint --project tsconfig.json \"src/**/*.ts\"",
+    "clean": "rimraf ./build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts": "npm run clean && tsc",
+    "ts:watch": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -24,5 +28,9 @@
   "dependencies": {
     "express": "^4.16.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/express": "^4.11.0",
+    "rimraf": "^2.6.2",
+    "typescript": "^2.6.2"
+  }
 }
