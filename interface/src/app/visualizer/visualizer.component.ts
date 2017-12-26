@@ -13,6 +13,9 @@ export class VisualizerComponent implements OnInit {
 	@ViewChild('container') container: ElementRef;
 	@ViewChild('visualizer') canvas: ElementRef;
 
+	// Height of sculpture (max height modules can reach)
+	height = 10;
+
 	// How many modules in x and y direction
 	nx = 5;
 	ny = 5;
@@ -32,11 +35,29 @@ export class VisualizerComponent implements OnInit {
 	controls: any;
 
 	// Three.js object of each module in grid
-	modules: any[][] = [];
+	modules: { tip: THREE.Mesh, string: THREE.Line }[][] = [];
 
 	constructor() { }
 
 	ngOnInit() {
+		this.setupScene();
+		this.setupLighting();
+		this.setupModules();
+		this.setupCamera();
+
+		const animate = () => {
+			requestAnimationFrame(animate);
+			this.controls.update();
+			this.renderer.render(this.scene, this.camera);
+		};
+		animate();
+	}
+
+	/**
+	 * Create scene object, resize canvas on window resize, set scene background
+	 */
+
+	setupScene() {
 		this.scene = new THREE.Scene();
 		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
 		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas.nativeElement });
@@ -57,8 +78,36 @@ export class VisualizerComponent implements OnInit {
 
 		// General setup
 		this.scene.background = new THREE.Color('#202020');
+		this.scene.add(new THREE.AxesHelper(this.spaceBetween / 2));
+	}
 
-		// Lighting
+	/**
+	 * Set the camera position and initialize drag/touch controls to move camera
+	 */
+
+	setupCamera() {
+		// Setup camera
+		// this.camera.position.set(this.xLength / 2, 0, this.yLength / 2);
+		this.camera.position.x = -this.xLength / 2;
+		this.camera.position.y = this.height;
+		this.camera.position.z = -this.yLength / 2;
+
+		// this.camera.lookAt(this.xLength / 2, 0, this.yLength / 2);
+		// this.camera.zoom = 0;
+
+		// Setup controls
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		this.controls.rotateSpeed = 0.25;
+		this.controls.enableDamping = true;
+		this.controls.dampingFactor = 0.1;
+	}
+
+	/**
+	 * Lights! Camera! Action! (Actually only the lights part)
+	 */
+
+	setupLighting() {
+		// Hemisphere light
 		const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
 		hemiLight.color.setHSL(0.6, 1, 0.6);
 		hemiLight.groundColor.setHSL(0.095, 1, 0.75);
@@ -67,6 +116,7 @@ export class VisualizerComponent implements OnInit {
 		const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
 		this.scene.add(hemiLightHelper);
 
+		// Directional light
 		const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 		dirLight.color.setHSL(0.1, 1, 0.95);
 		dirLight.position.set(-1, 1.75, 1);
@@ -75,55 +125,55 @@ export class VisualizerComponent implements OnInit {
 		dirLight.castShadow = true;
 		dirLight.shadow.mapSize.width = 2048;
 		dirLight.shadow.mapSize.height = 2048;
+	}
 
-		// Origin
-		const xGeometry = new THREE.Geometry();
-		xGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
-		xGeometry.vertices.push(new THREE.Vector3(1, 0, 0));
-		const xLine = new THREE.Line(xGeometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
-		this.scene.add(xLine);
+	/**
+	 * Add the modules into a grid array
+	 */
 
-		const yGeometry = new THREE.Geometry();
-		yGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
-		yGeometry.vertices.push(new THREE.Vector3(0, 1, 0));
-		const yLine = new THREE.Line(yGeometry, new THREE.LineBasicMaterial({ color: 0x00ff00 }));
-		this.scene.add(yLine);
-
-		const zGeometry = new THREE.Geometry();
-		zGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
-		zGeometry.vertices.push(new THREE.Vector3(0, 0, 1));
-		const zLine = new THREE.Line(zGeometry, new THREE.LineBasicMaterial({ color: 0x0000ff }));
-		this.scene.add(zLine);
-
+	setupModules() {
 		// Add modules
 		const sphereGeometry = new THREE.SphereGeometry(this.moduleLength / 2, 32, 32);
-		const moduleMaterial = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 }));
+		const sphereMaterial = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 }));
+
+		const lineMaterial = new THREE.LineDashedMaterial({
+			color: 0xffff00,
+			dashSize: 0.1,
+			gapSize: 0.1
+		});
+
 		for (let i = 0; i < this.nx; i++) {
 			this.modules[i] = [];
 			for (let j = 0; j < this.ny; j++) {
-				this.modules[i][j] = new THREE.Mesh(sphereGeometry, moduleMaterial);
-				this.modules[i][j].position.x = i * this.spaceBetween;
-				this.modules[i][j].position.z = j * this.spaceBetween;
-				this.scene.add(this.modules[i][j]);
+				this.modules[i][j] = {};
+
+				// Just the tip
+				this.modules[i][j].tip = new THREE.Mesh(sphereGeometry, sphereMaterial);
+				this.modules[i][j].tip.position.x = i * this.spaceBetween;
+				this.modules[i][j].tip.position.z = j * this.spaceBetween;
+
+				// Line
+				this.modules[i][j].string = new THREE.Line(this.getStringVertices(i, j), lineMaterial);
+
+				this.scene.add(this.modules[i][j].tip);
+				this.scene.add(this.modules[i][j].string);
 			}
 		}
+	}
 
-		this.camera.position.x = -5;
-		this.camera.position.y = 5;
-		this.camera.position.z = -5;
-		this.camera.lookAt(new THREE.Vector3(this.xLength / 2, this.spaceBetween, this.yLength / 2));
+	/**
+	 * Get the string vertices for a module at specific x and y positions
+	 */
 
-		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-		this.controls.rotateSpeed = 0.25;
-		this.controls.enableDamping = true;
-		this.controls.dampingFactor = 0.1;
-
-		const animate = () => {
-			requestAnimationFrame(animate);
-			this.controls.update();
-			this.renderer.render(this.scene, this.camera);
-		};
-		animate();
+	getStringVertices(x: number, y: number) {
+		const geometry = new THREE.BufferGeometry();
+		const tipPos = this.modules[x][y].tip.position;
+		const vertices = new Float32Array([
+			tipPos.x, tipPos.y,    tipPos.z
+			tipPos.x, this.height, tipPos.z
+		]);
+		geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+		return geometry;
 	}
 
 }
