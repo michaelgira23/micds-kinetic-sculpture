@@ -13,31 +13,35 @@ export class VisualizerComponent implements OnInit {
 	@ViewChild('container') container: ElementRef;
 	@ViewChild('visualizer') canvas: ElementRef;
 
+	// How many modules in x and y direction
+	nx = 5;
+	ny = 5;
+
+	// Dimensions to render module and space between them
+	moduleLength = 1;
 	spaceBetween = 5;
 
-	gridX = 5;
-	gridY = 5;
-	moduleLength = 1;
+	// Length of grid in x and y directions
+	xLength = (this.nx * this.moduleLength) + ((this.nx - 1) * this.spaceBetween);
+	yLength = (this.ny * this.moduleLength) + ((this.ny - 1) * this.spaceBetween);
 
-	modules: any[][] = [];
-
-	xLength = (this.gridX * this.moduleLength) + ((this.gridX - 1) * this.spaceBetween);
-	yLength = (this.gridY * this.moduleLength) + ((this.gridY - 1) * this.spaceBetween);
-
+	// Three.js stuff
 	scene: THREE.Scene;
 	camera: THREE.PerspectiveCamera;
 	renderer: THREE.WebGLRenderer;
 	controls: any;
 
+	// Three.js object of each module in grid
+	modules: any[][] = [];
+
 	constructor() { }
 
 	ngOnInit() {
 		this.scene = new THREE.Scene();
-		this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+		this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
 		this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas.nativeElement });
 		this.renderer.gammaInput = true;
 		this.renderer.gammaOutput = true;
-		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
 		// Resize canvas to fit container
 		const resizeCanvas = () => {
@@ -72,46 +76,51 @@ export class VisualizerComponent implements OnInit {
 		dirLight.shadow.mapSize.width = 2048;
 		dirLight.shadow.mapSize.height = 2048;
 
-		//
+		// Origin
+		const xGeometry = new THREE.Geometry();
+		xGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+		xGeometry.vertices.push(new THREE.Vector3(1, 0, 0));
+		const xLine = new THREE.Line(xGeometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
+		this.scene.add(xLine);
 
-		// const shiny = new THREE.MeshPhongMaterial({
-		// 	color: 0xeee,
-		// 	specular: 0x050505,
-		// 	shininess: 100
-		// });
+		const yGeometry = new THREE.Geometry();
+		yGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+		yGeometry.vertices.push(new THREE.Vector3(0, 1, 0));
+		const yLine = new THREE.Line(yGeometry, new THREE.LineBasicMaterial({ color: 0x00ff00 }));
+		this.scene.add(yLine);
 
-		// Box
-		// const geometry = new THREE.BoxGeometry(1, 1, 1);
-		// const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-		// const cube = new THREE.Mesh(geometry, shiny);
-		// this.scene.add(cube);
+		const zGeometry = new THREE.Geometry();
+		zGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+		zGeometry.vertices.push(new THREE.Vector3(0, 0, 1));
+		const zLine = new THREE.Line(zGeometry, new THREE.LineBasicMaterial({ color: 0x0000ff }));
+		this.scene.add(zLine);
 
-		// material = new THREE.MeshBasicMaterial( {
-		// 	envMap: cubeCamera2.renderTarget.texture
-		// } );
-		// const sphere = new THREE.Mesh( new THREE.IcosahedronBufferGeometry( 20, 3 ) );
-		// this.scene.add( sphere );
+		// Add modules
+		const sphereGeometry = new THREE.SphereGeometry(this.moduleLength / 2, 32, 32);
+		const moduleMaterial = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 }));
+		for (let i = 0; i < this.nx; i++) {
+			this.modules[i] = [];
+			for (let j = 0; j < this.ny; j++) {
+				this.modules[i][j] = new THREE.Mesh(sphereGeometry, moduleMaterial);
+				this.modules[i][j].position.x = i * this.spaceBetween;
+				this.modules[i][j].position.z = j * this.spaceBetween;
+				this.scene.add(this.modules[i][j]);
+			}
+		}
 
-		// Sphere
-		const shiny = new THREE.MeshStandardMaterial({ color: '#000', roughness: 1 });
+		this.camera.position.x = -5;
+		this.camera.position.y = 5;
+		this.camera.position.z = -5;
+		this.camera.lookAt(new THREE.Vector3(this.xLength / 2, this.spaceBetween, this.yLength / 2));
 
-		const shinyEnvMap = new THREE.TextureLoader().load('/assets/textures/shiny-envMap.png');
-		shinyEnvMap.mapping = THREE.SphericalReflectionMapping;
-		shiny.envMap = shinyEnvMap;
-
-		const shinyRoughnessMap = new THREE.TextureLoader().load('/assets/textures/shinyroughnessMap.png');
-		shinyRoughnessMap.magFilter = THREE.NearestFilter;
-		shiny.roughnessMap = shinyRoughnessMap;
-
-		const sphereGeometry = new THREE.SphereGeometry(30, 64, 64);
-
-		const ball = new THREE.Mesh(sphereGeometry, shiny);
-		this.scene.add(ball);
-
-		this.camera.position.z = 5;
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+		this.controls.rotateSpeed = 0.25;
+		this.controls.enableDamping = true;
+		this.controls.dampingFactor = 0.1;
 
 		const animate = () => {
 			requestAnimationFrame(animate);
+			this.controls.update();
 			this.renderer.render(this.scene, this.camera);
 		};
 		animate();
