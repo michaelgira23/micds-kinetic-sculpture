@@ -19,6 +19,7 @@ app.get('/test', (req, res) => {
 			height: Math.sin(info.x + info.timeElapsed) * (info.maxHeight / 2)
 		};
 	});
+	res.json(grid.coordinator.export());
 });
 
 // Serve Angular interface for creating formations

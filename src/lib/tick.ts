@@ -1,5 +1,11 @@
-export interface HeightMap {
-	[time: number]: number[][];
+export interface HeightMapDuration {
+	[time: number]: HeightMap;
+}
+
+export type HeightMap = number[][];
+
+export interface MovePointMapDuration {
+	[time: number]: MovePointMap;
 }
 
 export type MovePointMap = (MovePoint | null)[][];

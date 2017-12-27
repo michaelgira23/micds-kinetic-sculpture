@@ -1,6 +1,6 @@
 import { Formation } from './formation';
 import { Grid } from './grid';
-import { EASING, Globals, HeightMap, TickCallback, Transition } from './tick';
+import { EASING, Globals, HeightMapDuration, TickCallback, Transition } from './tick';
 
 /**
  * Main class for blending together formations, playing them in loop
@@ -38,7 +38,7 @@ export class Coordinator {
 	 */
 
 	export() {
-		const heightMap: HeightMap = {};
+		const heightMap: HeightMapDuration = {};
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
 			const isEdge = (i === 0) || (i === this.sequence.length - 1);
@@ -47,6 +47,8 @@ export class Coordinator {
 			if (isEdge && item.type === 'transition') {
 				continue;
 			}
+
+			return (item as FormationSequence).formation.getMovePointMapForDuration(1000);
 
 			/** @todo Get the duration from each formation then combine them via transitions */
 		}
