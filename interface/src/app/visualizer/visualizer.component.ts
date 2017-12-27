@@ -78,7 +78,8 @@ export class VisualizerComponent implements OnInit {
 
 		// General setup
 		this.scene.background = new THREE.Color('#202020');
-		this.scene.add(new THREE.AxesHelper(this.spaceBetween / 2));
+		// THREE.AxisHelper has not been updated to THREE.AxesHelper in @types/three
+		this.scene.add(new (THREE as any).AxesHelper(this.spaceBetween / 2));
 	}
 
 	/**
@@ -134,7 +135,7 @@ export class VisualizerComponent implements OnInit {
 	setupModules() {
 		// Add modules
 		const sphereGeometry = new THREE.SphereGeometry(this.moduleLength / 2, 32, 32);
-		const sphereMaterial = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 }));
+		const sphereMaterial = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 });
 
 		const lineMaterial = new THREE.LineDashedMaterial({
 			color: 0xffff00,
@@ -145,7 +146,10 @@ export class VisualizerComponent implements OnInit {
 		for (let i = 0; i < this.nx; i++) {
 			this.modules[i] = [];
 			for (let j = 0; j < this.ny; j++) {
-				this.modules[i][j] = {};
+				this.modules[i][j] = {
+					tip: null,
+					string: null
+				};
 
 				// Just the tip
 				this.modules[i][j].tip = new THREE.Mesh(sphereGeometry, sphereMaterial);
@@ -169,7 +173,7 @@ export class VisualizerComponent implements OnInit {
 		const geometry = new THREE.BufferGeometry();
 		const tipPos = this.modules[x][y].tip.position;
 		const vertices = new Float32Array([
-			tipPos.x, tipPos.y,    tipPos.z
+			tipPos.x, tipPos.y,    tipPos.z,
 			tipPos.x, this.height, tipPos.z
 		]);
 		geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
