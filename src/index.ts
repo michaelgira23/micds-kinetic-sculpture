@@ -3,15 +3,25 @@ const port = 1550;
 import * as express from 'express';
 import * as path from 'path';
 
+// Coordination algorithm
+import { Grid } from './lib/grid';
+import { TickInfo } from './lib/tick';
+
 const app = express();
+
+const angularDir = path.join(__dirname, '..', 'interface', 'dist');
 
 // API
 app.get('/test', (req, res) => {
-	res.json({ hello: 'world' });
+	const grid = new Grid(5, 5, 10, 100);
+	grid.coordinator.addFormation(info => {
+		return {
+			height: Math.sin(info.x + info.timeElapsed) * (info.maxHeight / 2)
+		};
+	});
 });
 
 // Serve Angular interface for creating formations
-const angularDir = path.join(__dirname, '..', 'interface', 'dist');
 app.use(express.static(angularDir));
 app.use((req, res) => {
 	res.sendFile(path.join(angularDir, 'index.html'));

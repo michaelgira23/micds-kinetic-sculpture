@@ -1,4 +1,10 @@
-export type TickCallback = (info: TickInfo) => Partial<MovePoint>;
+export interface HeightMap {
+	[time: number]: number[][];
+}
+
+export type MovePointMap = (MovePoint | null)[][];
+
+export type TickCallback = (info: TickInfo) => Partial<MovePoint> | void;
 
 export interface TickInfo {
 	globals: Globals;
@@ -14,7 +20,7 @@ export interface Globals {
 
 export interface MovePoint {
 	height: number;
-	ease: EASING;
+	easing: EASING;
 	wait: number;
 }
 
@@ -25,8 +31,6 @@ export interface Transition {
 }
 
 export enum EASING {
-	NONE                = 'none',
-	SPLIT               = 'split',
 	LINEAR              = 'linear',
 	BOUNCE_OUT          = 'bounceOut',
 	SWING               = 'swing',

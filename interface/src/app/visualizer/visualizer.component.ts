@@ -143,24 +143,24 @@ export class VisualizerComponent implements OnInit {
 			gapSize: 0.1
 		});
 
-		for (let i = 0; i < this.nx; i++) {
-			this.modules[i] = [];
-			for (let j = 0; j < this.ny; j++) {
-				this.modules[i][j] = {
+		for (let x = 0; x < this.nx; x++) {
+			this.modules[x] = [];
+			for (let y = 0; y < this.ny; y++) {
+				this.modules[x][y] = {
 					tip: null,
 					string: null
 				};
 
 				// Just the tip
-				this.modules[i][j].tip = new THREE.Mesh(sphereGeometry, sphereMaterial);
-				this.modules[i][j].tip.position.x = i * this.spaceBetween;
-				this.modules[i][j].tip.position.z = j * this.spaceBetween;
+				this.modules[x][y].tip = new THREE.Mesh(sphereGeometry, sphereMaterial);
+				this.modules[x][y].tip.position.x = x * this.spaceBetween;
+				this.modules[x][y].tip.position.z = y * this.spaceBetween;
 
 				// Line
-				this.modules[i][j].string = new THREE.Line(this.getStringVertices(i, j), lineMaterial);
+				this.modules[x][y].string = new THREE.Line(this.getStringVertices(x, y), lineMaterial);
 
-				this.scene.add(this.modules[i][j].tip);
-				this.scene.add(this.modules[i][j].string);
+				this.scene.add(this.modules[x][y].tip);
+				this.scene.add(this.modules[x][y].string);
 			}
 		}
 	}

@@ -2,14 +2,6 @@
  * Custom functions outside of the jQuery Easing plugin
  */
 
-export function none(x: number) {
-	return x === 1 ? 1 : 0;
-}
-
-export function split(x: number) {
-	return x < 0.5 ? 0 : 1;
-}
-
 export function linear(x: number) {
 	return x;
 }

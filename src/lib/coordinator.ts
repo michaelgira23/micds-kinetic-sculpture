@@ -1,6 +1,6 @@
 import { Formation } from './formation';
 import { Grid } from './grid';
-import { EASING, Globals, TickCallback, Transition } from './tick';
+import { EASING, Globals, HeightMap, TickCallback, Transition } from './tick';
 
 /**
  * Main class for blending together formations, playing them in loop
@@ -8,17 +8,17 @@ import { EASING, Globals, TickCallback, Transition } from './tick';
 
 export class Coordinator {
 
-	constructor(private grid: Grid, readonly sequence: Sequence = []) { }
+	constructor(private grid: Grid, readonly sequence: Sequence = [], public repeat = Number.POSITIVE_INFINITY) { }
 
-	addFormation(index: number = this.sequence.length, duration: number, callback: TickCallback, globals: Globals) {
+	addFormation(callback: TickCallback, duration?: number, globals?: Globals, index: number = this.sequence.length) {
 		this.sequence.splice(index, 0, {
 			type: 'formation',
 			formation: new Formation(this.grid, callback, globals),
-			duration
+			duration: duration || Number.POSITIVE_INFINITY
 		});
 	}
 
-	addTransition(index: number = this.sequence.length, transition: Transition) {
+	addTransition(transition: Transition, index: number = this.sequence.length) {
 		this.sequence.splice(index, 0, {
 			type: 'transition',
 			transition
@@ -32,9 +32,28 @@ export class Coordinator {
 			this.sequence.splice(index + 1, 1);
 		}
 	}
+
+	/**
+	 * Will return one iteration of loop.
+	 */
+
+	export() {
+		const heightMap: HeightMap = {};
+		for (let i = 0; i < this.sequence.length; i++) {
+			const item = this.sequence[i];
+			const isEdge = (i === 0) || (i === this.sequence.length - 1);
+
+			// Ignore transitions that are first or last (because there's nothing to transition to/from!)
+			if (isEdge && item.type === 'transition') {
+				continue;
+			}
+
+			/** @todo Get the duration from each formation then combine them via transitions */
+		}
+	}
 }
 
-export type Sequence = (FormationSequence|TransitionSequence)[];
+export type Sequence = (FormationSequence | TransitionSequence)[];
 
 interface FormationSequence {
 	type: 'formation';

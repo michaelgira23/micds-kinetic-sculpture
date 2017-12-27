@@ -8,7 +8,7 @@ export class Grid {
 
 	coordinator: Coordinator;
 
-	constructor(public x: number, public y: number, public maxHeight: number) {
+	constructor(public nx: number, public ny: number, public maxHeight: number, public updateFrequency: number) {
 		this.coordinator = new Coordinator(this);
 	}
 }
