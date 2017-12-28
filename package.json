@@ -4,6 +4,7 @@
   "description": "Interface for creating and executing formations for a sculpture Ehan made",
   "main": "src/index.js",
   "scripts": {
+    "start": "npm run ts && node ./build/index.js",
     "setup": "cd ./interface && npm install && npm run build",
     "lint": "tslint --project tsconfig.json \"src/**/*.ts\"",
     "clean": "rimraf ./build",
