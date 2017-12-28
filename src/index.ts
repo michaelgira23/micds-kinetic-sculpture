@@ -16,7 +16,8 @@ app.get('/test', (req, res) => {
 	const grid = new Grid(5, 5, 10, 100);
 	grid.coordinator.addFormation(info => {
 		return {
-			height: Math.sin(info.x + info.timeElapsed) * (info.maxHeight / 2)
+			height: (Math.sin(info.x + (info.timeElapsed / 1000) * (Math.PI / 180)) * (info.maxHeight / 2))
+				+ (info.maxHeight / 2)
 		};
 	});
 	res.json(grid.coordinator.export());

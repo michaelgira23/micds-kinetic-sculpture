@@ -3,6 +3,9 @@ import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
+import { Grid } from '../../../../src/lib/grid';
+import { HeightMap } from '../../../../src/lib/tick';
+
 @Component({
 	selector: 'app-visualizer',
 	templateUrl: './visualizer.component.html',
@@ -14,7 +17,7 @@ export class VisualizerComponent implements OnInit {
 	@ViewChild('visualizer') canvas: ElementRef;
 
 	// Height of sculpture (max height modules can reach)
-	height = 10;
+	maxHeight = 10;
 
 	// How many modules in x and y direction
 	nx = 5;
@@ -90,7 +93,7 @@ export class VisualizerComponent implements OnInit {
 		// Setup camera
 		// this.camera.position.set(this.xLength / 2, 0, this.yLength / 2);
 		this.camera.position.x = -this.xLength / 2;
-		this.camera.position.y = this.height;
+		this.camera.position.y = this.maxHeight;
 		this.camera.position.z = -this.yLength / 2;
 
 		// this.camera.lookAt(this.xLength / 2, 0, this.yLength / 2);
@@ -173,11 +176,55 @@ export class VisualizerComponent implements OnInit {
 		const geometry = new THREE.BufferGeometry();
 		const tipPos = this.modules[x][y].tip.position;
 		const vertices = new Float32Array([
-			tipPos.x, tipPos.y,    tipPos.z,
-			tipPos.x, this.height, tipPos.z
+			tipPos.x, tipPos.y,       tipPos.z,
+			tipPos.x, this.maxHeight, tipPos.z
 		]);
 		geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
 		return geometry;
+	}
+
+	/**
+	 * Animate modules with coordination algorithm
+	 */
+
+	animate() {
+		const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
+		grid.coordinator.addFormation(info => {
+			return {
+				height: (Math.sin(info.x + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
+					+ (info.maxHeight / 2)
+			};
+		});
+		const heightMapDuration = grid.coordinator.export();
+		const times = Object.keys(heightMapDuration).map(time => Number(time));
+
+		let current = 0;
+
+		const interval = setInterval(() => {
+			const heightMap = heightMapDuration[current];
+			if (!heightMap) {
+				clearInterval(interval);
+				return;
+			}
+			this.updateHeightMap(heightMap);
+			current += grid.updateFrequency;
+		}, grid.updateFrequency);
+	}
+
+	/**
+	 * Update ball positions with height map
+	 */
+
+	updateHeightMap(heightMap: HeightMap) {
+		for (let x = 0; x < this.nx; x++) {
+			for (let y = 0; y < this.ny; y++) {
+				this.modules[x][y].tip.position.y = heightMap[x][y];
+				/** @todo Try updating string position as well */
+				// const position = ((this.modules[x][y].string.geometry as THREE.BufferGeometry).attributes as any).position.array;
+				// position[1] = heightMap[x][y];
+				// position.needsUpdate = true;
+			}
+		}
 	}
 
 }

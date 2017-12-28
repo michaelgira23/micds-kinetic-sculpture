@@ -1,3 +1,4 @@
+import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import {
 	EASING,
@@ -22,27 +23,54 @@ export class Formation {
 		const movePointMapTimes = Object.keys(movePointMap).map(time => Number(time));
 
 		const heightMap: HeightMapDuration = {};
-		for (let time = 0; time <= duration; time++) {
+		for (let time = 0; time <= duration; time += this.grid.updateFrequency) {
 			heightMap[time] = [];
 		}
-		const heightTimes = Object.keys(heightMap).map(time => Number(time));
+		const updateHeightTimes = Object.keys(heightMap).map(time => Number(time));
 
+		// Iterate through each individual module
 		for (let x = 0; x < this.grid.nx; x++) {
 			for (let y = 0; y < this.grid.ny; y++) {
-				const previousValue = previousHeight[x][y];
+				// Remember last updated value/time for easing
+				// For the first value, default to `previousHeight` if null is returned from callback function
+				let previousValue = previousHeight[x][y];
 				let lastUpdated = 0;
-				for (const time of movePointMapTimes) {
-					const movePoint = movePointMap[time][x][y];
+				// Go through all the move points for this specific module
+				for (const movePointTime of movePointMapTimes) {
+					const movePoint = movePointMap[movePointTime][x][y];
+
+					// Ignore milliseconds in which callback returns null
 					if (!movePoint) {
 						continue;
 					}
 
-					/** @todo Find easing between last frame and current move point and calculate heights for intervals */
+					// Update all times up until the current frame
+					for (const updateTime of updateHeightTimes) {
+						if (lastUpdated <= updateTime && updateTime <= movePointTime) {
+							// Get percentage time is between the two values
+							const percentage = (updateTime - lastUpdated) / (movePointTime - lastUpdated);
+							// Difference in heights
+							const valueDiff = movePoint.height - previousValue;
+							// Ease function to use
+							const ease = EASING_FUNCTIONS[movePoint.easing];
+							// Calculate what height should be at current updating time
+							const newValue = (ease(percentage) * valueDiff) + previousValue;
 
-					lastUpdated = time;
+							if (typeof heightMap[updateTime][x] !== 'object') {
+								heightMap[updateTime][x] = [];
+							}
+
+							heightMap[updateTime][x][y] = newValue;
+						}
+					}
+
+					previousValue = movePoint.height;
+					lastUpdated = movePointTime;
 				}
 			}
 		}
+
+		return heightMap;
 	}
 
 	getMovePointMapForDuration(duration: number) {

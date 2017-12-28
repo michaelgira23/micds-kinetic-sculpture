@@ -2,6 +2,15 @@
 	position: relative;
 	width: 100%;
 	height: 100%;
+
+	background: #202020;
+
+	button {
+		position: absolute;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 1;
+	}
 }
 
 canvas {

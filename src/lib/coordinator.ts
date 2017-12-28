@@ -48,7 +48,7 @@ export class Coordinator {
 				continue;
 			}
 
-			return (item as FormationSequence).formation.getMovePointMapForDuration(1000);
+			return (item as FormationSequence).formation.getHeightMapForDuration(10000);
 
 			/** @todo Get the duration from each formation then combine them via transitions */
 		}
