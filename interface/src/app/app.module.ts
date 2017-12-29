@@ -4,11 +4,13 @@ import { routing } from './app.routing';
 
 import { AppComponent } from './app.component';
 import { VisualizerComponent } from './visualizer/visualizer.component';
+import { FormationsSidebarComponent } from './visualizer/formations-sidebar/formations-sidebar.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
-		VisualizerComponent
+		VisualizerComponent,
+		FormationsSidebarComponent
 	],
 	imports: [
 		BrowserModule,

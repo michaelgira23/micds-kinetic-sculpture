@@ -1,5 +1,8 @@
-<div #container class="visualizer-container">
-	<div class="directions">Left drag to orbit — Right drag to pan — Scroll to zoom</div>
-	<button class="btn btn-info" (click)="animate()">Play</button>
-	<canvas #visualizer></canvas>
+<div class="content-container">
+	<div #container class="visualizer-container">
+		<div class="directions">Left drag to orbit — Right drag to pan — Scroll to zoom</div>
+		<button class="btn btn-info" (click)="animate()">Play</button>
+		<canvas #visualizer></canvas>
+	</div>
+	<app-formations-sidebar [(selectedFormation)]="formation"></app-formations-sidebar>
 </div>

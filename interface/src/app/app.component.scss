@@ -10,24 +10,7 @@
 		flex-grow: 0;
 	}
 
-	.content-container {
+	.outlet-container {
 		flex-grow: 1;
 	}
-}
-
-.content-container {
-	display: flex;
-
-	.sidebar {
-		flex-grow: 0;
-	}
-
-	app-visualizer {
-		flex-grow: 1;
-	}
-}
-
-.sidebar {
-	padding: 1rem;
-	background: grey;
 }

@@ -1,3 +1,16 @@
+.content-container {
+	height: 100%;
+	display: flex;
+
+	formations-sidebar {
+		flex-grow: 0;
+	}
+
+	.visualizer-container {
+		flex-grow: 1;
+	}
+}
+
 .visualizer-container {
 	position: relative;
 	width: 100%;

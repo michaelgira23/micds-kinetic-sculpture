@@ -3,6 +3,7 @@ import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
+import { defaultFormations } from '../../../../src/lib/default-formations';
 import { Grid } from '../../../../src/lib/grid';
 import { HeightMap } from '../../../../src/lib/tick';
 
@@ -39,6 +40,8 @@ export class VisualizerComponent implements OnInit {
 
 	// Three.js object of each module in grid
 	modules: { tip: THREE.Mesh, string: THREE.Line }[][] = [];
+
+	formation: string;
 
 	constructor() { }
 
@@ -189,12 +192,7 @@ export class VisualizerComponent implements OnInit {
 
 	animate() {
 		const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
-		grid.coordinator.addFormation(info => {
-			return {
-				height: (Math.sin(info.x + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
-					+ (info.maxHeight / 2)
-			};
-		});
+		grid.coordinator.addFormation(defaultFormations[this.formation]);
 		const heightMapDuration = grid.coordinator.export();
 		const times = Object.keys(heightMapDuration).map(time => Number(time));
 
