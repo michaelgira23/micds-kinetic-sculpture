@@ -196,6 +196,8 @@ export class VisualizerComponent implements OnInit {
 		const heightMapDuration = grid.coordinator.export();
 		const times = Object.keys(heightMapDuration).map(time => Number(time));
 
+		console.log('height map duration', heightMapDuration);
+
 		let current = 0;
 
 		const interval = setInterval(() => {

@@ -27,7 +27,9 @@ export class FormationsSidebarComponent implements OnInit {
 	constructor() { }
 
 	ngOnInit() {
-		this.selectedFormation = this.formationNames[0];
+		setTimeout(() => {
+			this.selectedFormation = this.formationNames[0];
+		});
 	}
 
 }
