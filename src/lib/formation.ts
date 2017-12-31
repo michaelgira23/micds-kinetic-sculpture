@@ -18,9 +18,13 @@ import {
 export class Formation {
 	constructor(private grid: Grid, private callback: TickCallback, private globals: Globals = {}) { }
 
+	/**
+	 * Calculate height of each module for a duration of time
+	 */
+
 	getHeightMapForDuration(duration: number, previousHeight: HeightMap = this.grid.DEFAULT_HEIGHT_MAP) {
-		const movePointMap = this.getMovePointMapForDuration(duration);
-		const movePointMapTimes = Object.keys(movePointMap).map(time => Number(time));
+		const movePointMapDuration = this.getMovePointMapForDuration(duration);
+		const movePointMapTimes = Object.keys(movePointMapDuration).map(time => Number(time));
 
 		const heightMap: HeightMapDuration = {};
 		for (let time = 0; time <= duration; time += this.grid.updateFrequency) {
@@ -35,12 +39,13 @@ export class Formation {
 				// For the first value, default to `previousHeight` if null is returned from callback function
 				let previousValue = previousHeight[x][y];
 				let lastUpdated = 0;
+				let lastUpdatedWait = 0;
 				// Go through all the move points for this specific module
 				for (const movePointTime of movePointMapTimes) {
-					const movePoint = movePointMap[movePointTime][x][y];
+					const movePoint = movePointMapDuration[movePointTime][x][y];
 
 					// Ignore milliseconds in which callback returns null
-					if (!movePoint) {
+					if (!movePoint || movePointTime < lastUpdated + lastUpdatedWait) {
 						continue;
 					}
 
@@ -53,6 +58,7 @@ export class Formation {
 							const valueDiff = movePoint.height - previousValue;
 							// Ease function to use
 							const ease = EASING_FUNCTIONS[movePoint.easing];
+							// console.log('ease function', movePoint.easing);
 							// Calculate what height should be at current updating time
 							const newValue = (ease(percentage) * valueDiff) + previousValue;
 
@@ -66,12 +72,17 @@ export class Formation {
 
 					previousValue = movePoint.height;
 					lastUpdated = movePointTime;
+					lastUpdatedWait = movePoint.wait;
 				}
 			}
 		}
 
 		return heightMap;
 	}
+
+	/**
+	 * Get move points for all modules in grid for a duration of time
+	 */
 
 	getMovePointMapForDuration(duration: number) {
 		const movePointMap: MovePointMapDuration = {};
@@ -91,13 +102,19 @@ export class Formation {
 			grid[x] = [];
 			for (let y = 0; y < this.grid.ny; y++) {
 				const movePoint = this.getMovePoint(time, x, y);
-				if (movePoint !== null) {
+				if (!ignoreNull || movePoint !== null) {
 					grid[x][y] = movePoint;
+				} else {
+					console.log('null', movePoint);
 				}
 			}
 		}
 		return grid;
 	}
+
+	/**
+	 * Get move point for a specific module at a specific time
+	 */
 
 	getMovePoint(time: number, x: number, y: number) {
 		const movePoint = this.callback({

@@ -1,5 +1,5 @@
 import { random } from './rng';
-import { EASING, TickCallback } from './tick';
+import { EASING, MovePoint, TickCallback } from './tick';
 
 export const defaultFormations: { [func: string]: TickCallback } = {
 
@@ -58,10 +58,14 @@ export const defaultFormations: { [func: string]: TickCallback } = {
 		// 	console.log(rng());
 		// 	console.log(rng());
 		// }
-		return {
+		const thing: MovePoint = {
 			height: rng() * info.maxHeight,
-			ease: EASING.EASE_IN_OUT_EXPO,
+			easing: EASING.EASE_IN_OUT_EXPO,
 			wait: (rng() * 5000) + 1000
 		};
+		// if (info.timeElapsed > 5160 && info.timeElapsed <= 6000 && info.x === 2 && info.y === 0) {
+		// 	console.log('ting', thing);
+		// }
+		return thing;
 	}
 };

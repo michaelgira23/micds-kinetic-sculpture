@@ -218,11 +218,15 @@ export class VisualizerComponent implements OnInit {
 	updateHeightMap(heightMap: HeightMap) {
 		for (let x = 0; x < this.nx; x++) {
 			for (let y = 0; y < this.ny; y++) {
-				this.modules[x][y].tip.position.y = heightMap[x][y];
-				/** @todo Try updating string position as well */
-				// const position = ((this.modules[x][y].string.geometry as THREE.BufferGeometry).attributes as any).position.array;
-				// position[1] = heightMap[x][y];
-				// position.needsUpdate = true;
+				if (heightMap[x] && heightMap[x][y]) {
+					this.modules[x][y].tip.position.y = heightMap[x][y];
+					/** @todo Try updating string position as well */
+					// const position = ((this.modules[x][y].string.geometry as THREE.BufferGeometry).attributes as any).position.array;
+					// position[1] = heightMap[x][y];
+					// position.needsUpdate = true;
+				} else {
+					// console.log(x, y, heightMap);
+				}
 			}
 		}
 	}
