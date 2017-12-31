@@ -148,19 +148,25 @@ export class VisualizerComponent implements OnInit {
 		// Load font
 		const loader = new THREE.FontLoader();
 		loader.load('/assets/Open Sans Light_Regular.json', font => {
+			const material = new THREE.MeshStandardMaterial({
+				color: '#eee',
+				transparent: true,
+				opacity: 0.5,
+				roughness: 1
+			});
+
+			const fontOptions = {
+				font,
+				size: 1,
+				height: 0.1
+			};
+
 			// X Labels
 			for (let x = 0; x < this.nx; x++) {
-				const geometry = new THREE.TextGeometry(`x${x}`, {
-					font,
-					size: 1,
-					height: 0.1
-				});
-
+				const geometry = new THREE.TextGeometry(`x${x}`, fontOptions);
 				// Calculate offset for centering labels
 				geometry.computeBoundingBox();
 				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-
-				const material = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 });
 
 				const text = new THREE.Mesh(geometry, material);
 				text.position.x = (x * this.spaceBetween) + centerOffset;
@@ -174,18 +180,11 @@ export class VisualizerComponent implements OnInit {
 
 			// Y Labels
 			for (let y = 0; y < this.nx; y++) {
-				const geometry = new THREE.TextGeometry(`y${y}`, {
-					font,
-					size: 1,
-					height: 0.1
-				});
-
+				const geometry = new THREE.TextGeometry(`y${y}`, fontOptions);
 				// Calculate offset for centering labels
 				geometry.computeBoundingBox();
 				// Still use x axis because we haven't rotated text yet
 				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-
-				const material = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 });
 
 				const text = new THREE.Mesh(geometry, material);
 				text.position.x = -this.spaceBetween;

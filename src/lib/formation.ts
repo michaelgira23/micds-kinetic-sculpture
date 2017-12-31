@@ -46,8 +46,14 @@ export class Formation {
 						continue;
 					}
 
+					// Round move point time to next update frequency
+					const firstUpdateTime = Math.ceil(lastUpdated / this.grid.updateFrequency) * this.grid.updateFrequency;
+					if (firstUpdateTime > movePointTime) {
+						continue;
+					}
+
 					// Update points
-					for (let updateTime = lastUpdated; updateTime <= duration; updateTime += this.grid.updateFrequency) {
+					for (let updateTime = firstUpdateTime; updateTime <= duration; updateTime += this.grid.updateFrequency) {
 
 						let newValue = movePoint.height;
 
@@ -58,7 +64,6 @@ export class Formation {
 							// Difference in heights
 							const valueDiff = movePoint.height - previousValue;
 							// Ease function to use
-							// console.log('ease', movePoint.easing);
 							const ease = EASING_FUNCTIONS[movePoint.easing];
 							// Calculate what height should be at current updating time
 							newValue = (ease(percentage) * valueDiff) + previousValue;
