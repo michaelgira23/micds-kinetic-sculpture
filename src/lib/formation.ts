@@ -1,15 +1,6 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
-import {
-	EASING,
-	Globals,
-	HeightMap,
-	HeightMapDuration,
-	MovePoint,
-	MovePointMap,
-	MovePointMapDuration,
-	TickCallback
-} from './tick';
+import { EASING, Globals, HeightMap, HeightMapDuration, MovePoint, TickCallback } from './tick';
 
 /**
  * Class handling the tick function
@@ -33,6 +24,19 @@ export class Formation {
 				let lastUpdated = 0;
 				let lastUpdatedWait = 0;
 
+				// Fill times with previous height in case there are absolutely no move points for this module
+				for (let updateTime = lastUpdated; updateTime < duration; updateTime += this.grid.updateFrequency) {
+					if (typeof heightMapDuration[updateTime] !== 'object') {
+						heightMapDuration[updateTime] = [];
+					}
+
+					if (typeof heightMapDuration[updateTime][x] !== 'object') {
+						heightMapDuration[updateTime][x] = [];
+					}
+
+					heightMapDuration[updateTime][x][y] = previousValue;
+				}
+
 				// Iterate through duration finding all the move points
 				for (let movePointTime = 0; movePointTime <= duration; movePointTime++) {
 					// Skip trying to calculate new move point if previous wait hasn't timed out
@@ -40,13 +44,13 @@ export class Formation {
 						continue;
 					}
 
-					const movePoint = this.getMovePoint(movePointTime, x, y);
+					const movePoint = this.getMovePoint(movePointTime, duration, x, y);
 
 					if (!movePoint) {
 						continue;
 					}
 
-					// Round move point time to next update frequency
+					// Round move point time up to next update frequency
 					const firstUpdateTime = Math.ceil(lastUpdated / this.grid.updateFrequency) * this.grid.updateFrequency;
 					if (firstUpdateTime > movePointTime) {
 						continue;
@@ -94,15 +98,19 @@ export class Formation {
 	 * Get move point for a specific module at a specific time
 	 */
 
-	getMovePoint(time: number, x: number, y: number) {
-		const movePoint = this.callback({
+	getMovePoint(time: number, totalTime: number, x: number, y: number) {
+		let movePoint = this.callback({
 			globals: this.globals,
 			maxHeight: this.grid.maxHeight,
 			timeElapsed: time,
+			totalDuration: totalTime,
 			x,
 			y
 		});
-		if (!movePoint || typeof movePoint.height !== 'number') {
+		if (typeof movePoint === 'number') {
+			movePoint = { height: movePoint };
+		}
+		if (typeof movePoint !== 'object' || typeof movePoint.height !== 'number') {
 			return null;
 		}
 		if (!movePoint.easing) {

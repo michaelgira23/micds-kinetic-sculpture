@@ -10,12 +10,13 @@ export interface MovePointMapDuration {
 
 export type MovePointMap = (MovePoint | null)[][];
 
-export type TickCallback = (info: TickInfo) => Partial<MovePoint> | void;
+export type TickCallback = (info: TickInfo) => Partial<MovePoint> | number | void;
 
 export interface TickInfo {
 	globals: Globals;
 	maxHeight: number;
 	timeElapsed: number;
+	totalDuration: number;
 	x: number;
 	y: number;
 }
