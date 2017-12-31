@@ -40,6 +40,7 @@ export class VisualizerComponent implements OnInit {
 
 	// Three.js object of each module in grid
 	modules: { tip: THREE.Mesh, string: THREE.Line }[][] = [];
+	labels: { x: THREE.Mesh[], y: THREE.Mesh[] } = { x: [], y: [] };
 
 	// Current variables while playing formation
 	formation: string;
@@ -52,6 +53,7 @@ export class VisualizerComponent implements OnInit {
 	ngOnInit() {
 		this.setupScene();
 		this.setupLighting();
+		this.setupLabels();
 		this.setupModules();
 		this.setupCamera();
 
@@ -136,6 +138,65 @@ export class VisualizerComponent implements OnInit {
 		dirLight.castShadow = true;
 		dirLight.shadow.mapSize.width = 2048;
 		dirLight.shadow.mapSize.height = 2048;
+	}
+
+	/**
+	 * Add text labels for x and y modules
+	 */
+
+	setupLabels() {
+		// Load font
+		const loader = new THREE.FontLoader();
+		loader.load('/assets/Open Sans Light_Regular.json', font => {
+			// X Labels
+			for (let x = 0; x < this.nx; x++) {
+				const geometry = new THREE.TextGeometry(`x${x}`, {
+					font,
+					size: 1,
+					height: 0.1
+				});
+
+				// Calculate offset for centering labels
+				geometry.computeBoundingBox();
+				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+				const material = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 });
+
+				const text = new THREE.Mesh(geometry, material);
+				text.position.x = (x * this.spaceBetween) + centerOffset;
+				text.position.y = this.maxHeight;
+				text.position.z = -this.spaceBetween;
+				text.rotateY(Math.PI);
+
+				this.labels.x[x] = text;
+				this.scene.add(this.labels.x[x]);
+			}
+
+			// Y Labels
+			for (let y = 0; y < this.nx; y++) {
+				const geometry = new THREE.TextGeometry(`y${y}`, {
+					font,
+					size: 1,
+					height: 0.1
+				});
+
+				// Calculate offset for centering labels
+				geometry.computeBoundingBox();
+				// Still use x axis because we haven't rotated text yet
+				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+				const material = new THREE.MeshStandardMaterial({ color: '#eee', roughness: 1 });
+
+				const text = new THREE.Mesh(geometry, material);
+				text.position.x = -this.spaceBetween;
+				text.position.y = this.maxHeight;
+				text.position.z = (y * this.spaceBetween) - centerOffset;
+				text.rotateY(-Math.PI / 2);
+
+				this.labels.y[y] = text;
+				this.scene.add(this.labels.y[y]);
+			}
+		});
 	}
 
 	/**
