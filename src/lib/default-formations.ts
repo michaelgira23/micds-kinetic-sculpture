@@ -61,8 +61,12 @@ export const defaultFormations: { [func: string]: TickCallback } = {
 		const thing: MovePoint = {
 			height: rng() * info.maxHeight,
 			easing: EASING.EASE_IN_OUT_EXPO,
-			wait: (rng() * 5000) + 1000
+			// wait: Math.abs(rng() * 100) + 1000
+			wait: 1000
 		};
+		if (thing.wait > 1100 || thing.wait < 1000) {
+			console.log('wait out of whawt', thing.wait, thing, info);
+		}
 		// if (info.timeElapsed > 5160 && info.timeElapsed <= 6000 && info.x === 2 && info.y === 0) {
 		// 	console.log('ting', thing);
 		// }

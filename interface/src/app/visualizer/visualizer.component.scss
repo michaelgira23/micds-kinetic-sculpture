@@ -17,20 +17,29 @@
 	height: 100%;
 	background: #202020;
 
-	.directions {
+	.overlay {
 		position: absolute;
-		left: 1rem;
-		bottom: 1rem;
 		z-index: 1;
+	}
+
+	.overlay-text {
 		opacity: 0.5;
 		color: #eee;
 	}
 
-	button {
-		position: absolute;
+	.time {
+		top: 1rem;
+		left: 1rem;
+	}
+
+	.directions {
+		left: 1rem;
+		bottom: 1rem;
+	}
+
+	.play {
 		right: 1rem;
 		bottom: 1rem;
-		z-index: 1;
 	}
 }
 

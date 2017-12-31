@@ -41,7 +41,11 @@ export class VisualizerComponent implements OnInit {
 	// Three.js object of each module in grid
 	modules: { tip: THREE.Mesh, string: THREE.Line }[][] = [];
 
+	// Current variables while playing formation
 	formation: string;
+	current = 0;
+	PLAYER_STATE = PLAYER_STATE;
+	state = PLAYER_STATE.NOT_STARTED;
 
 	constructor() { }
 
@@ -191,6 +195,8 @@ export class VisualizerComponent implements OnInit {
 	 */
 
 	animate() {
+		this.state = PLAYER_STATE.PLAYING;
+
 		const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
 		grid.coordinator.addFormation(defaultFormations[this.formation]);
 		const heightMapDuration = grid.coordinator.export();
@@ -198,16 +204,17 @@ export class VisualizerComponent implements OnInit {
 
 		console.log('height map duration', heightMapDuration);
 
-		let current = 0;
+		this.current = 0;
 
 		const interval = setInterval(() => {
-			const heightMap = heightMapDuration[current];
+			const heightMap = heightMapDuration[this.current];
 			if (!heightMap) {
 				clearInterval(interval);
+				this.state = PLAYER_STATE.FINISHED;
 				return;
 			}
 			this.updateHeightMap(heightMap);
-			current += grid.updateFrequency;
+			this.current += grid.updateFrequency;
 		}, grid.updateFrequency);
 	}
 
@@ -216,19 +223,30 @@ export class VisualizerComponent implements OnInit {
 	 */
 
 	updateHeightMap(heightMap: HeightMap) {
+		let logged = false;
 		for (let x = 0; x < this.nx; x++) {
 			for (let y = 0; y < this.ny; y++) {
-				if (heightMap[x] && heightMap[x][y]) {
+				if (typeof heightMap[x] === 'object' && typeof heightMap[x][y] === 'number') {
 					this.modules[x][y].tip.position.y = heightMap[x][y];
 					/** @todo Try updating string position as well */
 					// const position = ((this.modules[x][y].string.geometry as THREE.BufferGeometry).attributes as any).position.array;
 					// position[1] = heightMap[x][y];
 					// position.needsUpdate = true;
 				} else {
-					// console.log(x, y, heightMap);
+					if (!logged) {
+						console.log(`=====[Missing point(s) for time ${this.current}]=====`);
+						logged = true;
+					}
+					console.log(`x: ${x} y: ${y}`, heightMap);
 				}
 			}
 		}
 	}
 
+}
+
+enum PLAYER_STATE {
+	NOT_STARTED = 'Not started',
+	PLAYING = 'Playing',
+	FINISHED = 'Finished'
 }
