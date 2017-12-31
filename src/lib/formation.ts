@@ -47,16 +47,22 @@ export class Formation {
 					}
 
 					// Update points
-					for (let updateTime = lastUpdated; updateTime <= movePointTime; updateTime += this.grid.updateFrequency) {
-						// Get percentage time is between the two values
-						const percentage = (updateTime - lastUpdated) / (movePointTime - lastUpdated);
-						// Difference in heights
-						const valueDiff = movePoint.height - previousValue;
-						// Ease function to use
-						// console.log('ease', movePoint.easing);
-						const ease = EASING_FUNCTIONS[movePoint.easing];
-						// Calculate what height should be at current updating time
-						const newValue = (ease(percentage) * valueDiff) + previousValue;
+					for (let updateTime = lastUpdated; updateTime <= duration; updateTime += this.grid.updateFrequency) {
+
+						let newValue = movePoint.height;
+
+						// Do easing logic if easing from previous point. Otherwise, default following points to move point
+						if (updateTime < movePointTime) {
+							// Get percentage time is between the two values
+							const percentage = (updateTime - lastUpdated) / (movePointTime - lastUpdated);
+							// Difference in heights
+							const valueDiff = movePoint.height - previousValue;
+							// Ease function to use
+							// console.log('ease', movePoint.easing);
+							const ease = EASING_FUNCTIONS[movePoint.easing];
+							// Calculate what height should be at current updating time
+							newValue = (ease(percentage) * valueDiff) + previousValue;
+						}
 
 						if (typeof heightMapDuration[updateTime] !== 'object') {
 							heightMapDuration[updateTime] = [];

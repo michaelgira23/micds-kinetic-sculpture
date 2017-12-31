@@ -62,7 +62,7 @@ export const defaultFormations: { [func: string]: TickCallback } = {
 			height: rng() * info.maxHeight,
 			easing: EASING.EASE_IN_OUT_EXPO,
 			// wait: Math.abs(rng() * 100) + 1000
-			wait: 1000
+			wait: 1000 + 100 * info.x
 		};
 		if (thing.wait > 1100 || thing.wait < 1000) {
 			console.log('wait out of whawt', thing.wait, thing, info);
