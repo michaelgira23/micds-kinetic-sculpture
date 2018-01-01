@@ -1,6 +1,6 @@
 import { Formation } from './formation';
 import { Grid } from './grid';
-import { EASING, Globals, HeightMapDuration, TickCallback, Transition } from './tick';
+import { EASING, FormationSequence, Globals, HeightMapDuration, Sequence, TickCallback, Transition } from './tick';
 
 /**
  * Main class for blending together formations, playing them in loop
@@ -53,17 +53,4 @@ export class Coordinator {
 			/** @todo Get the duration from each formation then combine them via transitions */
 		}
 	}
-}
-
-export type Sequence = (FormationSequence | TransitionSequence)[];
-
-interface FormationSequence {
-	type: 'formation';
-	formation: Formation;
-	duration: number;
-}
-
-interface TransitionSequence {
-	type: 'transition';
-	transition: Transition;
 }

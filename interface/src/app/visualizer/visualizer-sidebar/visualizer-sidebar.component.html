@@ -1,0 +1,30 @@
+<div class="btn-group">
+	<button class="btn btn-primary"
+		[disabled]="type === VISUALIZER_TYPE.FORMATION"
+		(click)="type = VISUALIZER_TYPE.FORMATION">
+		Formations
+	</button>
+	<button class="btn btn-primary"
+		[disabled]="type === VISUALIZER_TYPE.SEQUENCE"
+		(click)="type = VISUALIZER_TYPE.SEQUENCE">
+		Sequence
+	</button>
+</div>
+<div class="list-group">
+	<ng-container *ngIf="type === VISUALIZER_TYPE.FORMATION">
+		<a *ngFor="let formation of formationNames"
+			class="list-group-item list-group-item-action"
+			[class.active]="name === formation"
+			(click)="name = formation">
+			{{ formation }}
+		</a>
+	</ng-container>
+	<ng-container *ngIf="type === VISUALIZER_TYPE.SEQUENCE">
+		<a *ngFor="let sequence of sequenceNames"
+			class="list-group-item list-group-item-action"
+			[class.active]="name === sequence"
+			(click)="name = sequence">
+			{{ sequence }}
+		</a>
+	</ng-container>
+</div>

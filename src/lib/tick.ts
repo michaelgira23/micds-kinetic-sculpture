@@ -1,14 +1,58 @@
+import { Formation } from './formation';
+
+/**
+ * Storing sequences
+ */
+
+export type StoredSequence = (StoredFormationSequence | TransitionSequence)[];
+
+export interface StoredFormationSequence {
+	type: 'formation';
+	formation: {
+		function: TickCallback;
+		globals?: Globals;
+	};
+	duration: number;
+}
+
+/**
+ * Sequences
+ */
+
+export type Sequence = (FormationSequence | TransitionSequence)[];
+
+export interface FormationSequence {
+	type: 'formation';
+	formation: Formation;
+	duration: number;
+}
+
+export interface TransitionSequence {
+	type: 'transition';
+	transition: Transition;
+}
+
+export interface Transition {
+	easing: EASING;
+	duration: number;
+	continuous: boolean;
+}
+
+/**
+ * Mapping heights of modules
+ */
+
 export interface HeightMapDuration {
 	[time: number]: HeightMap;
 }
 
 export type HeightMap = number[][];
 
-export interface MovePointMapDuration {
-	[time: number]: MovePointMap;
-}
-
 export type MovePointMap = (MovePoint | null)[][];
+
+/**
+ * Tick Callback
+ */
 
 export type TickCallback = (info: TickInfo) => Partial<MovePoint> | number | void;
 
@@ -33,11 +77,9 @@ export interface MovePoint {
 	wait: number;
 }
 
-export interface Transition {
-	easing: EASING;
-	duration: number;
-	continuous: boolean;
-}
+/**
+ * Easing functions available
+ */
 
 export enum EASING {
 	LINEAR              = 'linear',

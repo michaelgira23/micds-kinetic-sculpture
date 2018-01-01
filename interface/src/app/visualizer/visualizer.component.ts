@@ -3,7 +3,9 @@ import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
-import { formations } from '../../../../src/lib/formations';
+import { VISUALIZER_TYPE } from './visualizer-sidebar/visualizer-sidebar.component';
+
+import { formations } from '../../../../src/custom/formations';
 import { Grid } from '../../../../src/lib/grid';
 import { HeightMap } from '../../../../src/lib/tick';
 
@@ -43,7 +45,8 @@ export class VisualizerComponent implements OnInit {
 	labels: { x: THREE.Mesh[], y: THREE.Mesh[] } = { x: [], y: [] };
 
 	// Current variables while playing formation
-	formation: string;
+	selectedType: VISUALIZER_TYPE;
+	selectedName: string;
 	current = 0;
 	PLAYER_STATE = PLAYER_STATE;
 	state = PLAYER_STATE.NOT_STARTED;
@@ -255,14 +258,23 @@ export class VisualizerComponent implements OnInit {
 	 */
 
 	animate() {
-		this.state = PLAYER_STATE.PLAYING;
+		this.state = PLAYER_STATE.LOADING;
 
 		const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
-		grid.coordinator.addFormation(formations[this.formation]);
-		const heightMapDuration = grid.coordinator.export();
 
+		switch (this.selectedType) {
+			case VISUALIZER_TYPE.FORMATION:
+				grid.coordinator.addFormation(formations[this.selectedName]);
+				break;
+			case VISUALIZER_TYPE.SEQUENCE:
+				/** @todo */
+				break;
+		}
+
+		const heightMapDuration = grid.coordinator.export();
 		console.log('height map duration', heightMapDuration);
 
+		this.state = PLAYER_STATE.PLAYING;
 		this.current = 0;
 
 		const interval = setInterval(() => {
@@ -309,6 +321,7 @@ export class VisualizerComponent implements OnInit {
 
 enum PLAYER_STATE {
 	NOT_STARTED = 'Not started',
+	LOADING = 'Loading...',
 	PLAYING = 'Playing',
 	FINISHED = 'Finished'
 }

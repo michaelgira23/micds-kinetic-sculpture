@@ -1,9 +1,0 @@
-<h3>Formations</h3>
-<div class="list-group">
-	<a *ngFor="let formationName of formationNames"
-		class="list-group-item list-group-item-action"
-		[class.active]="selectedFormation === formationName"
-		(click)="selectedFormation = formationName">
-		{{ formationName }}
-	</a>
-</div>
