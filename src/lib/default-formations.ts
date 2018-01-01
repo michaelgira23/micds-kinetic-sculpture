@@ -87,7 +87,7 @@ export const defaultFormations: { [func: string]: TickCallback } = {
 
 		return {
 			height,
-			easing: EASING.EASE_IN_OUT_QUINT
+			easing: EASING.EASE_IN_OUT_QUINT,
 			wait
 		};
 	}

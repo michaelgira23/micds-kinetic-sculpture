@@ -18,9 +18,7 @@
 			"styles": [
 				"styles.scss"
 			],
-			"scripts": [
-				"./app/common/xeogl.min.js"
-			],
+			"scripts": [],
 			"environmentSource": "environments/environment.ts",
 			"environments": {
 				"dev": "environments/environment.ts",
