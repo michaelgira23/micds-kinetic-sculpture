@@ -1,7 +1,7 @@
 import { random } from './rng';
 import { EASING, MovePoint, TickCallback } from './tick';
 
-export const defaultFormations: { [func: string]: TickCallback } = {
+export const formations: { [func: string]: TickCallback } = {
 
 	/**
 	 * Sine wave in the x direction

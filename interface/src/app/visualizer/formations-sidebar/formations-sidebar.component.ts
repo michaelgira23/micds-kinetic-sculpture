@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { defaultFormations } from '../../../../../src/lib/default-formations';
+import { formations } from '../../../../../src/lib/formations';
 
 @Component({
 	selector: 'app-formations-sidebar',
@@ -9,8 +9,8 @@ import { defaultFormations } from '../../../../../src/lib/default-formations';
 })
 export class FormationsSidebarComponent implements OnInit {
 
-	formationNames = Object.keys(defaultFormations);
-	formations = defaultFormations;
+	formationNames = Object.keys(formations);
+	formations = formations;
 
 	private _selectedFormation = this.formationNames[0];
 	@Input()

@@ -3,7 +3,7 @@ import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
-import { defaultFormations } from '../../../../src/lib/default-formations';
+import { formations } from '../../../../src/lib/formations';
 import { Grid } from '../../../../src/lib/grid';
 import { HeightMap } from '../../../../src/lib/tick';
 
@@ -258,7 +258,7 @@ export class VisualizerComponent implements OnInit {
 		this.state = PLAYER_STATE.PLAYING;
 
 		const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
-		grid.coordinator.addFormation(defaultFormations[this.formation]);
+		grid.coordinator.addFormation(formations[this.formation]);
 		const heightMapDuration = grid.coordinator.export();
 
 		console.log('height map duration', heightMapDuration);
