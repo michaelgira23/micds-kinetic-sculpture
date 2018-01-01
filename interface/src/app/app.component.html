@@ -1,6 +1,12 @@
 <div class="layout-container">
-	<nav class="navbar navbar-light bg-light">
-		<a class="navbar-brand" href="#">MICDS Kinetic Sculpture</a>
+	<nav class="navbar navbar-expand navbar-light bg-light">
+		<a class="navbar-brand" routerLink="/">MICDS Kinetic Sculpture</a>
+		<div class="collapse navbar-collapse">
+			<div class="navbar-nav">
+				<a class="nav-item nav-link" routerLink="/visualizer" routerLinkActive="active">Visualizer</a>
+				<a class="nav-item nav-link" routerLink="/sequencer" routerLinkActive="active">Sequencer</a>
+			</div>
+		</div>
 	</nav>
 	<div class="outlet-container">
 		<router-outlet></router-outlet>
