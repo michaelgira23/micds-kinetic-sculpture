@@ -33,4 +33,4 @@ You can then access visualizer interface at `localhost:1550` in your web browser
 
 ## Development
 
-For documentation on how to create your own formations, refer to [`creating-formations.md`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/README.md)
+For documentation on how to create your own formations, refer to [`creating-formations.md`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/creating-formations.md)

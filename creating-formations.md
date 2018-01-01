@@ -1,18 +1,16 @@
 # Creating Formations
 
-## Terminology
-
 The sculpture is made of up an array of **modules**. A module is one motor with an attached string and a ball at the end of the string.
 
 A **formation** is a series of coordinated movements between the modules.
 
 A formation is created by supplying one function. This function is called a **tick callback function**. It is fired for every module at every millisecond and returns an object containing what height the module (ball) should be at.
 
-## Programming a Formation
+# Programming a Formation
 
 Tick callbacks can be found in [`/src/lib/default-formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/default-formations.ts). To create another formation, add another tick callback to the exported object.
 
-### Tick Info
+## Tick Info
 
 The callback function accepts one parameter: the `info` object. This contains data about the grid scultpure, the specific module, and more:
 
@@ -30,7 +28,7 @@ interface TickInfo {
 ```
 Up-to-date specification of data types can be found in [`/src/lib/tick.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/tick.ts)
 
-### Function Implementation
+## Function Implementation
 
 The tick callback performs the logic to dictate where each module should be at what time using the tick info provided. The callback has the following type:
 
@@ -65,7 +63,7 @@ info => {
 }
 ```
 
-### Using Random Numbers
+## Using Random Numbers
 
 There are many cases you might want a touch of randomness to your formation. Instead of using something like [`Math.random()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random), use the `random()` function (already imported in [`/src/lib/default-formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/default-formations.ts)) to create a "deterministic" random number generator. Pass in the `info` object and it will generate the same "random" numbers for each invocation for each individual module at each specific time. **This allows for random numbers, but consistent values returned each time the formation is generated. This helps remove any uncertainty to make sure no unexpected behavior pops up transitioning from development to the physical structure.**
 
