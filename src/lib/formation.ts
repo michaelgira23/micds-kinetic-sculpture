@@ -102,6 +102,8 @@ export class Formation {
 		let movePoint = this.callback({
 			globals: this.globals,
 			maxHeight: this.grid.maxHeight,
+			nx: this.grid.nx,
+			ny: this.grid.ny,
 			timeElapsed: time,
 			totalDuration: totalTime,
 			x,

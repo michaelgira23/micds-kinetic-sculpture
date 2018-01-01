@@ -15,6 +15,8 @@ export type TickCallback = (info: TickInfo) => Partial<MovePoint> | number | voi
 export interface TickInfo {
 	globals: Globals;
 	maxHeight: number;
+	nx: number;
+	ny: number;
 	timeElapsed: number;
 	totalDuration: number;
 	x: number;
