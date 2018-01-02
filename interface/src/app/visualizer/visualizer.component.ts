@@ -7,6 +7,7 @@ import { VISUALIZER_TYPE } from './visualizer-sidebar/visualizer-sidebar.compone
 
 import { formations } from '../../../../src/custom/formations';
 import { Grid } from '../../../../src/lib/grid';
+import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
 
 @Component({
@@ -264,10 +265,10 @@ export class VisualizerComponent implements OnInit {
 
 		switch (this.selectedType) {
 			case VISUALIZER_TYPE.FORMATION:
-				grid.coordinator.addFormation(formations[this.selectedName]);
+				grid.coordinator.addFormation(formations[this.selectedName], 10000);
 				break;
 			case VISUALIZER_TYPE.SEQUENCE:
-				/** @todo */
+				grid.coordinator.import(sequences[this.selectedName]);
 				break;
 		}
 
