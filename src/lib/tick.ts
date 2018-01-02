@@ -22,14 +22,19 @@ export interface StoredFormationSequence {
 export type Sequence = (FormationSequence | TransitionSequence)[];
 
 export interface FormationSequence {
-	type: 'formation';
+	type: SEQUENCE_TYPE.FORMATION;
 	formation: Formation;
 	duration: number;
 }
 
 export interface TransitionSequence {
-	type: 'transition';
+	type: SEQUENCE_TYPE.TRANSITION;
 	transition: Transition;
+}
+
+export enum SEQUENCE_TYPE {
+	FORMATION = 'formation',
+	TRANSITION = 'transition'
 }
 
 export interface Transition {

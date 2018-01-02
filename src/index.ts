@@ -19,7 +19,7 @@ app.get('/test', (req, res) => {
 			height: (Math.sin(info.x + (info.timeElapsed / 1000) * (Math.PI / 180)) * (info.maxHeight / 2))
 				+ (info.maxHeight / 2)
 		};
-	});
+	}, 10000);
 	res.json(grid.coordinator.export());
 });
 
