@@ -80,18 +80,20 @@ export class Coordinator {
 				continue;
 			}
 
-			switch (item.type) {
-				case 'formation':
-					const formationHeightMapDuration = item.formation.getHeightMapForDuration(item.duration, lastHeightMap);
-					const heightMapTimes = Object.keys(formationHeightMapDuration);
+			return (item as FormationSequence).formation.getHeightMapForDuration(10000);
 
-					// Get last height map for next formation
-					const lastTime = Number(heightMapTimes[heightMapTimes.length - 1]);
-					lastHeightMap = formationHeightMapDuration[lastTime];
-					break;
-				case 'transition':
-					break;
-			}
+			// switch (item.type) {
+			// 	case 'formation':
+			// 		const formationHeightMapDuration = item.formation.getHeightMapForDuration(item.duration, lastHeightMap);
+			// 		const heightMapTimes = Object.keys(formationHeightMapDuration);
+            //
+			// 		// Get last height map for next formation
+			// 		const lastTime = Number(heightMapTimes[heightMapTimes.length - 1]);
+			// 		lastHeightMap = formationHeightMapDuration[lastTime];
+			// 		break;
+			// 	case 'transition':
+			// 		break;
+			// }
 
 			/** @todo Get the duration from each formation then combine them via transitions */
 		}

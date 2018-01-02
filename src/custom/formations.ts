@@ -90,5 +90,22 @@ export const formations: { [name: string]: TickCallback } = {
 			easing: EASING.EASE_IN_OUT_QUINT,
 			wait
 		};
+	},
+
+	/**
+	 * Ripple effect
+	 */
+
+	ripple: info => {
+		const xMid = info.nx / 2;
+		const yMid = info.ny / 2;
+		const r = (Math.pow(Math.abs(info.x - xMid), 2) + Math.pow(Math.abs(info.y - yMid), 2));
+		const int = 0.5;
+		const h = int * 100 * Math.sin((info.timeElapsed) / 360 + r / (int * 10)) / (r + info.timeElapsed / 360);
+
+		return {
+			height: h,
+			easing: EASING.EASE_IN_QUAD
+		};
 	}
 };
