@@ -75,14 +75,14 @@ export class Coordinator {
 
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
-			const isEdge = (i === 0) || (i === this.sequence.length - 1);
+			const isFirst = (i === 0);
+			const isLast = (i === this.sequence.length - 1);
+			const isEdge = isFirst || isLast;
 
 			// Ignore transitions that are first or last (because there's nothing to transition to/from!)
 			if (isEdge && item.type === 'transition') {
 				continue;
 			}
-
-			// return (item as FormationSequence).formation.getHeightMapForDuration(10000);
 
 			switch (item.type) {
 				case SEQUENCE_TYPE.FORMATION:
@@ -96,13 +96,20 @@ export class Coordinator {
 
 					// Append formation height map to the exportered height map
 					const exportedHeightMapTimes = Object.keys(heightMapDuration);
-					const exportedLastTime = Number(exportedHeightMapTimes[exportedHeightMapTimes.length - 1]);
-
-					const startAppendage = exportedLastTime + this.grid.updateFrequency;
-					const newTotalDuration = exportedLastTime + formationLastTime + this.grid.updateFrequency;
+					let exportedLastTime = 0;
+					let startAppendage = 0;
+					let newTotalDuration = formationLastTime;
+					if (!isFirst) {
+						exportedLastTime = Number(exportedHeightMapTimes[exportedHeightMapTimes.length - 1]);
+						startAppendage = exportedLastTime + this.grid.updateFrequency;
+						newTotalDuration = exportedLastTime + formationLastTime + this.grid.updateFrequency;
+					}
 					for (const key of formationHeightMapTimes) {
 						const time = Number(key);
-						const exportedTime = exportedLastTime + this.grid.updateFrequency + Number(time);
+						let exportedTime = exportedLastTime + Number(time);
+						if (!isFirst) {
+							exportedTime += this.grid.updateFrequency;
+						}
 						heightMapDuration[exportedTime] = formationHeightMapDuration[time];
 					}
 
