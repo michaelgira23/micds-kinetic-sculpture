@@ -61,6 +61,6 @@ export class VisualizerSidebarComponent implements OnInit {
 }
 
 export enum VISUALIZER_TYPE {
-	FORMATION,
-	SEQUENCE
+	FORMATION = 'Formation',
+	SEQUENCE = 'Sequence'
 }
