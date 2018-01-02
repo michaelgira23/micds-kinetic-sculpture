@@ -8,7 +8,7 @@ A formation is created by supplying one function. This function is called a **ti
 
 # Programming a Formation
 
-Tick callbacks can be found in [`/src/lib/formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/formations.ts). To create another formation, add another tick callback to the exported object.
+Tick callbacks can be found in [`/src/custom/formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/custom/formations.ts). To create another formation, add another tick callback to the exported object.
 
 ## Tick Info
 
@@ -65,7 +65,7 @@ info => {
 
 ## Using Random Numbers
 
-There are many cases you might want a touch of randomness to your formation. Instead of using something like [`Math.random()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random), use the `random()` function (already imported in [`/src/lib/formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/formations.ts)) to create a "deterministic" random number generator. Pass in the `info` object and it will generate the same "random" numbers for each invocation for each individual module at each specific time. **This allows for random numbers, but consistent values returned each time the formation is generated. This helps remove any uncertainty to make sure no unexpected behavior pops up transitioning from development to the physical structure.**
+There are many cases you might want a touch of randomness to your formation. Instead of using something like [`Math.random()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random), use the `random()` function (already imported in [`/src/custom/formations.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/custom/formations.ts)) to create a "deterministic" random number generator. Pass in the `info` object and it will generate the same "random" numbers for each invocation for each individual module at each specific time. **This allows for random numbers, but consistent values returned each time the formation is generated. This helps remove any uncertainty to make sure no unexpected behavior pops up transitioning from development to the physical structure.**
 
 Here is an example implementation generating random `height`s and `wait`ing at random times:
 
