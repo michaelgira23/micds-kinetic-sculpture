@@ -1,5 +1,6 @@
 import { random } from '../lib/rng';
 import { EASING, MovePoint, TickCallback } from '../lib/tick';
+import { polarCoordinates } from '../lib/utils';
 
 export const formations: { [name: string]: TickCallback } = {
 
@@ -107,5 +108,15 @@ export const formations: { [name: string]: TickCallback } = {
 			height: h,
 			easing: EASING.EASE_IN_QUAD
 		};
+	},
+
+	/**
+	 * Raindrop effect
+	 */
+
+	raindrop: ({ nx, ny, x, y, timeElapsed }) => {
+		const polar = polarCoordinates(nx, ny, x, y);
+
+		return polar.radius * 10;
 	}
 };

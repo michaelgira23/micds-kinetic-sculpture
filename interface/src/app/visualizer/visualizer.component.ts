@@ -24,8 +24,8 @@ export class VisualizerComponent implements OnInit {
 	maxHeight = 10;
 
 	// How many modules in x and y direction
-	nx = 5;
-	ny = 5;
+	nx = 6;
+	ny = 6;
 
 	// Dimensions to render module and space between them
 	moduleLength = 1;
