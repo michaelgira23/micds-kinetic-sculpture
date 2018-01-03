@@ -2,7 +2,13 @@
 	<div #container class="visualizer-container">
 		<div class="time overlay overlay-text">{{ state }} — {{ current }} ms — {{ selectedType }} {{ selectedName }}</div>
 		<div class="directions overlay overlay-text">Left drag to orbit — Right drag to pan — Scroll to zoom</div>
-		<button class="play overlay btn btn-info" (click)="animate()" [disabled]="state === PLAYER_STATE.PLAYING">{{ state === PLAYER_STATE.PLAYING ? 'Playing...' : 'Play' }}</button>
+		<div class="controls overlay">
+			<label class="overlay-text">
+				<input type="checkbox" [(ngModel)]="showModuleLabels">
+				Show Module Labels
+			</label>
+			<button class="btn btn-info" (click)="animate()" [disabled]="state === PLAYER_STATE.PLAYING">{{ state === PLAYER_STATE.PLAYING ? 'Playing...' : 'Play' }}</button>
+		</div>
 		<canvas #visualizer></canvas>
 	</div>
 	<app-visualizer-sidebar [(type)]="selectedType" [(name)]="selectedName"></app-visualizer-sidebar>

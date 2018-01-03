@@ -2,18 +2,38 @@
  * @file Util functions for implementing formations
  */
 
+/**
+ * Detect if module is in center
+ */
+
+export function isCenter(nx: number, ny: number, x: number, y: number) {
+	const { radius } = polarCoordinates(nx, ny, x, y, false);
+	return {
+		isCenter: !Math.floor(radius),
+		multiple: isEven(nx) || isEven(ny)
+	};
+}
+
  /**
   * Convert x and y coordinates to polar coordinates in grid
   */
 
-export function polarCoordinates(nx: number, ny: number, x: number, y: number, radians = true) {
-	const xMid = nx / 2;
-	const yMid = ny / 2;
+export function polarCoordinates(nx: number, ny: number, x: number, y: number, computeTheta = true, radians = true) {
+	const xMid = (nx + 1) / 2;
+	const yMid = (ny + 1) / 2;
 
-	const xRelative = x - xMid;
-	const yRelative = y - yMid;
+	const xRelative = (x + 1) - xMid;
+	const yRelative = (y + 1) - yMid;
 
-	const radius = distance(xMid, yMid, x, y);
+	const radius = distance(xMid, yMid, x + 1, y + 1);
+
+	if (!computeTheta) {
+		return {
+			radius,
+			theta: null
+		};
+	}
+
 	let theta = Math.atan(yRelative / xRelative);
 
 	if (!radians) {
@@ -48,4 +68,12 @@ export function toRadians(degrees: number) {
 
 export function toDegrees(radians: number) {
 	return radians * (180 / Math.PI);
+}
+
+/**
+ * Whether number is even or not
+ */
+
+export function isEven(num: number) {
+	return num % 2 === 0;
 }

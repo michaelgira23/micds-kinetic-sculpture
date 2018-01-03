@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { formations } from '../../../../../src/custom/formations';
 import { sequences } from '../../../../../src/custom/sequences';
@@ -49,10 +50,31 @@ export class VisualizerSidebarComponent implements OnInit {
 	@Output()
 	nameChange = new EventEmitter<string>();
 
-	constructor() { }
+	constructor(private route: ActivatedRoute) { }
 
 	ngOnInit() {
 		setTimeout(() => {
+			// See if there's URL parameters
+			const params = this.route.snapshot.queryParams;
+			// Update selected thing if it's valid
+			if (params.type && params.name) {
+				switch (params.type) {
+					case VISUALIZER_TYPE.FORMATION:
+						if (formations[params.name]) {
+							this.type = VISUALIZER_TYPE.FORMATION;
+							this.name = params.name;
+							return;
+						}
+						break;
+					case VISUALIZER_TYPE.SEQUENCE:
+						if (sequences[params.name]) {
+							this.type = VISUALIZER_TYPE.SEQUENCE;
+							this.name = params.name;
+							return;
+						}
+						break;
+				}
+			}
 			this.type = VISUALIZER_TYPE.FORMATION;
 			this.name = this.formationNames[0];
 		});

@@ -1,6 +1,6 @@
 import { random } from '../lib/rng';
 import { EASING, MovePoint, TickCallback } from '../lib/tick';
-import { polarCoordinates } from '../lib/utils';
+import { polarCoordinates, toRadians } from '../lib/utils';
 
 export const formations: { [name: string]: TickCallback } = {
 
@@ -9,7 +9,7 @@ export const formations: { [name: string]: TickCallback } = {
 	 */
 
 	sinx: info => {
-		return (Math.sin(info.x + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
+		return (Math.sin(info.x + toRadians(info.timeElapsed / 10)) * (info.maxHeight / 2))
 			+ (info.maxHeight / 2);
 	},
 
@@ -18,7 +18,7 @@ export const formations: { [name: string]: TickCallback } = {
 	 */
 
 	siny: info => {
-		return (Math.sin(info.y + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
+		return (Math.sin(info.y + toRadians(info.timeElapsed / 10)) * (info.maxHeight / 2))
 			+ (info.maxHeight / 2);
 	},
 
@@ -27,7 +27,7 @@ export const formations: { [name: string]: TickCallback } = {
 	 */
 
 	sind: info => {
-		return (Math.sin(info.x + info.y + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
+		return (Math.sin(info.x + info.y + toRadians(info.timeElapsed / 10)) * (info.maxHeight / 2))
 			+ (info.maxHeight / 2);
 	},
 
@@ -36,7 +36,7 @@ export const formations: { [name: string]: TickCallback } = {
 	 */
 
 	tan: info => {
-		return (Math.tan((info.x / 10) + (info.timeElapsed / 10) * (Math.PI / 180)) * (info.maxHeight / 2))
+		return (Math.tan((info.x / 10) + toRadians(info.timeElapsed / 10)) * (info.maxHeight / 2))
 			+ (info.maxHeight / 2);
 	},
 
@@ -114,9 +114,12 @@ export const formations: { [name: string]: TickCallback } = {
 	 * Raindrop effect
 	 */
 
-	raindrop: ({ nx, ny, x, y, timeElapsed }) => {
+	raindrop: ({ nx, ny, x, y, timeElapsed, maxHeight }) => {
 		const polar = polarCoordinates(nx, ny, x, y);
-
-		return polar.radius * 10;
+		// const n = toRadians(timeElapsed / 10) - polar.radius;
+		// return (Math.sin(n) / (n / 2)) * maxHeight / 2;
+		return Math.floor(polar.radius);
+		// console.log('r', polar.radius, polar.radius.toFixed(0), polar.radius.toFixed(1));
+		// return Number(polar.radius.toFixed(0));
 	}
 };

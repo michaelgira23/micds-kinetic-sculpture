@@ -21,7 +21,6 @@
     "@angular/router": "^5.0.0",
     "@avatsaev/three-orbitcontrols-ts": "github:avatsaev/three-orbitcontrols-ts",
     "@types/three": "^0.84.35",
-    "angular2gridster": "^1.1.0",
     "bootstrap": "^4.0.0-beta.2",
     "core-js": "^2.4.1",
     "css-element-queries": "^0.4.0",

@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
@@ -20,12 +21,14 @@ export class VisualizerComponent implements OnInit {
 	@ViewChild('container') container: ElementRef;
 	@ViewChild('visualizer') canvas: ElementRef;
 
+	updateURLTimeout: any;
+
 	// Height of sculpture (max height modules can reach)
 	maxHeight = 10;
 
 	// How many modules in x and y direction
-	nx = 6;
-	ny = 6;
+	nx = 8;
+	ny = 8;
 
 	// Dimensions to render module and space between them
 	moduleLength = 1;
@@ -40,19 +43,38 @@ export class VisualizerComponent implements OnInit {
 	camera: THREE.PerspectiveCamera;
 	renderer: THREE.WebGLRenderer;
 	controls: any;
+	font: THREE.Font;
 
 	// Three.js object of each module in grid
-	modules: { tip: THREE.Mesh, string: THREE.Line }[][] = [];
+	modules: { tip: THREE.Mesh, string: THREE.Line, label: THREE.Mesh }[][] = [];
 	labels: { x: THREE.Mesh[], y: THREE.Mesh[] } = { x: [], y: [] };
 
 	// Current variables while playing formation
-	selectedType: VISUALIZER_TYPE;
-	selectedName: string;
+	get selectedType() {
+		return this._selectedType;
+	}
+	set selectedType(type: VISUALIZER_TYPE) {
+		this._selectedType = type;
+		this.updateUrl();
+	}
+	private _selectedType: VISUALIZER_TYPE;
+
+	get selectedName() {
+		return this._selectedName;
+	}
+	set selectedName(name: string) {
+		this._selectedName = name;
+		this.updateUrl();
+	}
+	private _selectedName: string;
+
+
 	current = 0;
 	PLAYER_STATE = PLAYER_STATE;
 	state = PLAYER_STATE.NOT_STARTED;
+	showModuleLabels = false;
 
-	constructor() { }
+	constructor(private router: Router) { }
 
 	ngOnInit() {
 		this.setupScene();
@@ -152,14 +174,15 @@ export class VisualizerComponent implements OnInit {
 		// Load font
 		const loader = new THREE.FontLoader();
 		loader.load('/assets/Open Sans Light_Regular.json', font => {
-			const material = new THREE.MeshStandardMaterial({
+			this.font = font;
+
+			const axisMaterial = new THREE.MeshStandardMaterial({
 				color: '#eee',
 				transparent: true,
 				opacity: 0.5,
 				roughness: 1
 			});
-
-			const fontOptions = {
+			const axisFontOptions = {
 				font,
 				size: 1,
 				height: 0.1
@@ -167,12 +190,12 @@ export class VisualizerComponent implements OnInit {
 
 			// X Labels
 			for (let x = 0; x < this.nx; x++) {
-				const geometry = new THREE.TextGeometry(`x${x}`, fontOptions);
+				const geometry = new THREE.TextGeometry(`x${x}`, axisFontOptions);
 				// Calculate offset for centering labels
 				geometry.computeBoundingBox();
 				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
 
-				const text = new THREE.Mesh(geometry, material);
+				const text = new THREE.Mesh(geometry, axisMaterial);
 				text.position.x = (x * this.spaceBetween) + centerOffset;
 				text.position.y = this.maxHeight;
 				text.position.z = -this.spaceBetween;
@@ -183,14 +206,14 @@ export class VisualizerComponent implements OnInit {
 			}
 
 			// Y Labels
-			for (let y = 0; y < this.nx; y++) {
-				const geometry = new THREE.TextGeometry(`y${y}`, fontOptions);
+			for (let y = 0; y < this.ny; y++) {
+				const geometry = new THREE.TextGeometry(`y${y}`, axisFontOptions);
 				// Calculate offset for centering labels
 				geometry.computeBoundingBox();
 				// Still use x axis because we haven't rotated text yet
 				const centerOffset = 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
 
-				const text = new THREE.Mesh(geometry, material);
+				const text = new THREE.Mesh(geometry, axisMaterial);
 				text.position.x = -this.spaceBetween;
 				text.position.y = this.maxHeight;
 				text.position.z = (y * this.spaceBetween) - centerOffset;
@@ -199,6 +222,8 @@ export class VisualizerComponent implements OnInit {
 				this.labels.y[y] = text;
 				this.scene.add(this.labels.y[y]);
 			}
+
+			this.updateModuleLabels();
 		});
 	}
 
@@ -222,7 +247,8 @@ export class VisualizerComponent implements OnInit {
 			for (let y = 0; y < this.ny; y++) {
 				this.modules[x][y] = {
 					tip: null,
-					string: null
+					string: null,
+					label: null
 				};
 
 				// Just the tip
@@ -319,7 +345,64 @@ export class VisualizerComponent implements OnInit {
 				}
 			}
 		}
+		this.updateModuleLabels(heightMap);
 	}
+
+	/**
+	 * Update height labels for modules
+	 */
+
+	updateModuleLabels(heightMap?: HeightMap) {
+		if (!this.showModuleLabels || !this.font) {
+			return;
+		}
+
+		// Height labels
+		const heightMaterial = new THREE.MeshStandardMaterial({
+			color: '#4286f4',
+			transparent: true,
+			opacity: 1,
+			roughness: 1
+		});
+		const heightFontOptions = {
+			font: this.font,
+			size: 0.75,
+			height: 0.1
+		};
+		for (let x = 0; x < this.nx; x++) {
+			for (let y = 0; y < this.ny; y++) {
+				if (this.modules[x] && this.modules[x][y] && this.modules[x][y].label) {
+					this.scene.remove(this.modules[x][y].label);
+				}
+
+				const height = heightMap ? heightMap[x][y] : 0;
+				const geometry = new THREE.TextGeometry(`${height.toFixed(1)}m`, heightFontOptions);
+				const text = new THREE.Mesh(geometry, heightMaterial);
+				text.position.x = (x * this.spaceBetween);
+				text.position.y = this.maxHeight;
+				text.position.z = (y * this.spaceBetween);
+
+				text.rotateY(Math.PI);
+				text.rotateX(-Math.PI / 2);
+
+				this.modules[x][y].label = text;
+				this.scene.add(this.modules[x][y].label);
+			}
+		}
+	}
+
+	private updateUrl() {
+		// Add timeout so inspector doesn't lag out when spamming
+		clearTimeout(this.updateURLTimeout);
+		this.updateURLTimeout = setTimeout(() => {
+			this.router.navigate(['/visualizer'], {
+				queryParams: {
+					type: this.selectedType,
+					name: this.selectedName
+				}
+			});
+		}, 500);
+}
 
 }
 
