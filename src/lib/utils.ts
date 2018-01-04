@@ -9,7 +9,7 @@
 export function isCenter(nx: number, ny: number, x: number, y: number) {
 	const { radius } = polarCoordinates(nx, ny, x, y, false);
 	return {
-		isCenter: !Math.floor(radius),
+		center: !Math.floor(radius),
 		multiple: isEven(nx) || isEven(ny)
 	};
 }
