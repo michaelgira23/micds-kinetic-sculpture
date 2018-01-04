@@ -238,6 +238,8 @@ export class VisualizerComponent implements OnInit {
 
 		const lineMaterial = new THREE.LineDashedMaterial({
 			color: 0xffff00,
+			transparent: true,
+			opacity: 0.5,
 			dashSize: 0.1,
 			gapSize: 0.1
 		});
