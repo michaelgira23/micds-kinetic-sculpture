@@ -1,5 +1,5 @@
 import { random } from '../lib/rng';
-import { EASING, MovePoint, TickCallback } from '../lib/tick';
+import { EASING, TickCallback } from '../lib/tick';
 import { isCenter, polarCoordinates, toRadians } from '../lib/utils';
 
 export const formations: { [name: string]: TickCallback } = {
@@ -49,7 +49,7 @@ export const formations: { [name: string]: TickCallback } = {
 		return {
 			height: rng() * info.maxHeight,
 			easing: EASING.EASE_IN_OUT_EXPO,
-			wait: Math.abs(rng() * 3000) + 1000
+			easeDuration: Math.abs(rng() * 3000) + 1000
 		};
 	},
 
@@ -58,7 +58,14 @@ export const formations: { [name: string]: TickCallback } = {
 	 */
 
 	alternate: ({ x, y, timeElapsed, totalDuration, maxHeight }) => {
-		let wait = 1500;
+		if (timeElapsed === 0) {
+			return {
+				height: maxHeight / 2,
+				waitAfter: x * 200
+			};
+		}
+
+		const wait = 1500;
 		const sequence = [0, 1, 0, -1];
 
 		// Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
@@ -81,15 +88,11 @@ export const formations: { [name: string]: TickCallback } = {
 		}
 		height += maxHeight / 2;
 
-		// Initial offset
-		if (timeElapsed === 0) {
-			wait += x * 200;
-		}
-
 		return {
 			height,
 			easing: EASING.EASE_IN_OUT_QUINT,
-			wait
+			easeDuration: 1000,
+			waitAfter: wait - 1000
 		};
 	},
 
@@ -117,73 +120,17 @@ export const formations: { [name: string]: TickCallback } = {
 	raindrop: ({ nx, ny, x, y, timeElapsed, maxHeight }) => {
 		const impactTime = 2000;
 
+		const { center } = isCenter(nx, ny, x, y);
+
 		if (timeElapsed === 0) {
-			return maxHeight / 2;
-		} else if (x === 0) {
 			return {
-				height: 0,
-				wait: 2000
+				height: center ? maxHeight : (maxHeight / 4),
+				wait: impactTime
 			};
+		} else {
+			const { radius } = polarCoordinates(nx, ny, x, y);
+			return Math.sin((timeElapsed - impactTime) / 100) * (maxHeight / 2);
 		}
-
-		// const { center } = isCenter(nx, ny, x, y);
-
-		// if (timeElapsed <= 10) {
-		// 	return 1;
-		// } else {
-		// 	return {
-		// 		height: 2,
-		// 		wait: 1000
-		// 	};
-		// }
-
-		// if (x === 1 && y === 1) {
-		// 	if (timeElapsed < impactTime) {
-		// 		return maxHeight;
-		// 	} else {
-		// 		return {
-		// 			height: 1,
-		// 			easing: EASING.EASE_IN_QUAD,
-		// 			wait: impactTime
-		// 		};
-		// 	}
-		// } else {
-		// 	return 0;
-		// }
-
-		// let wait = 1500;
-		// const sequence = [0, 1, 0, -1];
-		//
-		// // Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
-		// let multiplier = 0;
-		// for (let i = 0; i < sequence.length; i++) {
-		// 	const step = Math.floor(timeElapsed / wait) % sequence.length;
-		// 	if (step === i) {
-		// 		multiplier = sequence[i];
-		// 	}
-		// }
-		//
-		// // Check if we have enough time, otherwise we should default back to 0
-		// // if (multiplier !== 0 && (timeElapsed + (wait * 2)) > totalDuration) {
-		// // 	multiplier = 0;
-		// // }
-		//
-		// let height = (maxHeight / 2) * multiplier;
-		// if ((x + y) % 2 === 0) {
-		// 	height *= -1;
-		// }
-		// height += maxHeight / 2;
-		//
-		// // Initial offset
-		// if (timeElapsed === 0) {
-		// 	wait += x * 200;
-		// }
-		//
-		// return {
-		// 	height,
-		// 	easing: EASING.EASE_IN_OUT_QUINT,
-		// 	wait
-		// };
 
 		// if (timeElapsed >= impactTime || (timeElapsed < impactTime && center)) {
 		// 	const polar = polarCoordinates(nx, ny, x, y);
@@ -202,5 +149,23 @@ export const formations: { [name: string]: TickCallback } = {
 		// } else {
 		// 	return 0;
 		// }
+	},
+
+	/**
+	 * Test
+	 */
+
+	test: info => {
+		if (info.timeElapsed === 0) {
+			return {
+				height: info.maxHeight / 2,
+				easing: EASING.EASE_IN_CIRC,
+				waitBefore: 1000,
+				easeDuration: 2000,
+				waitAfter: 1000
+			};
+		} else if (info.timeElapsed === 4000) {
+			return 0;
+		}
 	}
 };

@@ -290,37 +290,40 @@ export class VisualizerComponent implements OnInit {
 		this.state = PLAYER_STATE.LOADING;
 
 		// Just so that we can register the player is loading
-		setTimeout(() => {
-			const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
+		setTimeout(async () => {
+			await new Promise((resolve, reject) => {
+				const grid = new Grid(this.nx, this.ny, this.maxHeight, 10);
 
-			switch (this.selectedType) {
-				case VISUALIZER_TYPE.FORMATION:
-					grid.coordinator.addFormation(formations[this.selectedName], 10000);
-					break;
-				case VISUALIZER_TYPE.SEQUENCE:
-					grid.coordinator.import(sequences[this.selectedName]);
-					break;
-			}
-
-			const heightMapDuration = grid.coordinator.export();
-			console.log('height map duration', heightMapDuration);
-
-			this.state = PLAYER_STATE.PLAYING;
-			this.current = 0;
-
-			const interval = setInterval(() => {
-				const heightMap = heightMapDuration[this.current];
-				if (!heightMap) {
-					// Because we added the time already but it didn't exist
-					this.current -= grid.updateFrequency;
-
-					clearInterval(interval);
-					this.state = PLAYER_STATE.FINISHED;
-					return;
+				switch (this.selectedType) {
+					case VISUALIZER_TYPE.FORMATION:
+						grid.coordinator.addFormation(formations[this.selectedName], 10000);
+						break;
+					case VISUALIZER_TYPE.SEQUENCE:
+						grid.coordinator.import(sequences[this.selectedName]);
+						break;
 				}
-				this.updateHeightMap(heightMap);
-				this.current += grid.updateFrequency;
-			}, grid.updateFrequency);
+
+				const heightMapDuration = grid.coordinator.export();
+				console.log('height map duration', heightMapDuration);
+
+				this.state = PLAYER_STATE.PLAYING;
+				this.current = 0;
+
+				const interval = setInterval(() => {
+					const heightMap = heightMapDuration[this.current];
+					if (!heightMap) {
+						// Because we added the time already but it didn't exist
+						this.current -= grid.updateFrequency;
+
+						clearInterval(interval);
+						this.state = PLAYER_STATE.FINISHED;
+						resolve();
+						return;
+					}
+					this.updateHeightMap(heightMap);
+					this.current += grid.updateFrequency;
+				}, grid.updateFrequency);
+			});
 		}, 7);
 	}
 

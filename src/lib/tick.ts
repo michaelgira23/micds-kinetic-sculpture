@@ -51,15 +51,20 @@ export interface HeightMapDuration {
 	[time: number]: HeightMap;
 }
 
-export type HeightMap = number[][];
+export type HeightMap = Height[][];
 
-export type MovePointMap = (MovePoint | null)[][];
+export interface HeightDuration {
+	[time: number]: Height;
+}
+
+export type Height = number;
 
 /**
  * Tick Callback
  */
 
-export type TickCallback = (info: TickInfo) => Partial<MovePoint> | number | void;
+export type TickCallback = (info: TickInfo) => TickCallbackReturn;
+export type TickCallbackReturn = Partial<MovePointReturn> | number | void;
 
 export interface TickInfo {
 	globals: Globals;
@@ -76,10 +81,12 @@ export interface Globals {
 	[key: string]: any;
 }
 
-export interface MovePoint {
+export interface MovePointReturn {
 	height: number;
 	easing: EASING;
-	wait: number;
+	waitBefore: number;
+	easeDuration: number;
+	waitAfter: number;
 }
 
 /**
