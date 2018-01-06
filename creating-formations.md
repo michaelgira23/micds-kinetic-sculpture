@@ -36,17 +36,19 @@ The tick callback performs the logic to dictate where each module should be at w
 type TickCallback = (info: TickInfo) => Partial<MovePoint> | number | void;
 
 interface MovePoint {
-	height: number; // Height from very bottom. 1 unit equals 1 meter.
-	easing: EASING; // Easing function to get to next point throughout the provided `wait` duration.
-	wait: number;   // How many milliseconds in the formation before calling the next callback tick function for this module
+	height: number;       // Height from very bottom. 1 unit equals 1 meter.
+	easing: EASING;       // Easing function to get to next point throughout the provided `wait` duration.
+	waitBefore: number;   // How many milliseconds to wait before changing height
+	easeDuration: number; // How long it should take to ease to new height. 0 is instant.
+	waitAfter: number;    // How many milliseconds to wait before calling the next tick callback
 }
 ```
 
 Up-to-date specification of data types can be found in [`/src/lib/tick.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/tick.ts)
 
-It's important to note **the `Partial<MovePoint>` makes all properties in the return object optional.** If height is not provided, it will default to the height of the previous tick callback (rendering the ease function useless). If easing function is not provided, it defaults to `EASING.LINEAR`. A full list of possible easings can be found in [`/src/lib/tick.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/tick.ts). Finally, `wait` is how many milliseconds to wait before calling the next tick callback for the specific module. No tick callback will be invoked between the time of the current callback and the duration of the wait. It defaults to `1ms`. Increase the `wait` to see the easing function in action.
+It's important to note **the `Partial<MovePoint>` makes all properties in the return object optional.** If height is not provided, it will default to the height of the previous tick callback (rendering the ease function useless). If easing function is not provided, it defaults to `EASING.LINEAR`. A full list of possible easings can be found in [`/src/lib/tick.ts`](https://github.com/michaelgira23/micds-kinetic-sculpture/blob/master/src/lib/tick.ts). `beforeWait` and `afterWait` are how many milliseconds to delay before and after easing into the new height, respectively. These both default to `0` milliseconds. Finally, `easeDuration` is how many milliseconds it should take to ease into the new height. This value defaults to `0`, which instantly teleports the module. Increase the `easeDuration` to see the easing functions in action.
 
-The tick callback can also return a number. This value is interpreted as the height. There is no difference between returning a number and returning an object with only the `height` property. Just like returning an object, `easing` will default to `EASING.LINEAR` and `wait` defaults to `1` millisecond.
+The tick callback can also return a number. This value is interpreted as the height; there is no difference between returning a number and returning an object with only the `height` property. Just like returning an object, `easing` will default to `EASING.LINEAR` and wait/duration values default to `0` milliseconds.
 
 If the callback function returns nothing, null, or other invalid input, the module will remain at the height it was previously. In practice, if no value has been previously returned for the current callback function, it will use the final position of the last formation. If there is no previous formation (like in the visualizer), it will default to max height of the sculpture.
 
