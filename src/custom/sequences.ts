@@ -15,7 +15,8 @@ export const sequences: { [name: string]: StoredSequence } = {
 			transition: {
 				easing: EASING.LINEAR,
 				duration: 2000,
-				continuous: true
+				continuousBefore: true,
+				continuousAfter: true
 			}
 		},
 		{
@@ -30,7 +31,8 @@ export const sequences: { [name: string]: StoredSequence } = {
 			transition: {
 				easing: EASING.EASE_IN_OUT_QUAD,
 				duration: 2000,
-				continuous: true
+				continuousBefore: true,
+				continuousAfter: true
 			}
 		},
 		{
@@ -45,7 +47,8 @@ export const sequences: { [name: string]: StoredSequence } = {
 			transition: {
 				easing: EASING.EASE_IN_OUT_EXPO,
 				duration: 2000,
-				continuous: false
+				continuousBefore: false,
+				continuousAfter: false
 			}
 		}
 	]

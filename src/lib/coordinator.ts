@@ -1,6 +1,7 @@
 import { Formation } from './formation';
 import { Grid } from './grid';
 import {
+	EASING,
 	FormationSequence,
 	Globals,
 	HeightMapDuration,
@@ -8,8 +9,19 @@ import {
 	SEQUENCE_TYPE,
 	StoredSequence,
 	TickCallback,
-	Transition
+	Transition,
+	TransitionSequence
 } from './tick';
+
+const DEFAULT_TRANSFORMATION: TransitionSequence = {
+	type: SEQUENCE_TYPE.TRANSITION,
+	transition: {
+		easing: EASING.LINEAR,
+		duration: 2000,
+		continuousBefore: false,
+		continuousAfter: false
+	}
+};
 
 /**
  * Main class for blending together formations, playing them in loop
@@ -71,7 +83,7 @@ export class Coordinator {
 		const heightMapDuration: HeightMapDuration = {};
 
 		let lastHeightMap = this.grid.DEFAULT_HEIGHT_MAP;
-		let lastItemType: SEQUENCE_TYPE | null = null;
+		let nextTransition: TransitionSequence | null = null;
 
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
@@ -115,11 +127,12 @@ export class Coordinator {
 
 					/** @todo Add transition */
 
+					nextTransition = null;
 					break;
 				case SEQUENCE_TYPE.TRANSITION:
+					nextTransition = item;
 					break;
 			}
-			lastItemType = item.type;
 		}
 
 		/** @todo If loop is true, add transition to beginning and end */

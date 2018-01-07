@@ -40,7 +40,8 @@ export enum SEQUENCE_TYPE {
 export interface Transition {
 	easing: EASING;
 	duration: number;
-	continuous: boolean;
+	continuousBefore: boolean;
+	continuousAfter: boolean;
 }
 
 /**
