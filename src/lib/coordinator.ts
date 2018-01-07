@@ -87,7 +87,7 @@ export class Coordinator {
 			switch (item.type) {
 				case SEQUENCE_TYPE.FORMATION:
 					// Get height map for this formation
-					const formationHeightMapDuration = item.formation.getHeightMapForDuration(item.duration, lastHeightMap);
+					const formationHeightMapDuration = item.formation.getHeightMapForDuration(item.duration, 0, lastHeightMap);
 					const formationHeightMapTimes = Object.keys(formationHeightMapDuration);
 
 					// Get last height map for next formation

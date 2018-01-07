@@ -312,9 +312,6 @@ export class VisualizerComponent implements OnInit {
 				const interval = setInterval(() => {
 					const heightMap = heightMapDuration[this.current];
 					if (!heightMap) {
-						// Because we added the time already but it didn't exist
-						this.current -= grid.updateFrequency;
-
 						clearInterval(interval);
 						this.state = PLAYER_STATE.FINISHED;
 						resolve();
