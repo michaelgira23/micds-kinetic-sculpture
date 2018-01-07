@@ -45,28 +45,29 @@ export class MovePoint {
 	}
 
 	/**
-	 * Export function for giving height for duration of move point
+	 * Export function for finding height for duration of move point
 	 */
 
-	getHeight(heightBefore: number, time: number) {
+	export(heightBefore: number) {
 		if (this.height === null) {
-			return null;
+			return (time: number) => null;
 		}
-
 		const valueDiff = this.height - heightBefore;
-		const percentage = (time - this.waitBefore) / this.easeDuration;
 
-		// If before/after, just shortcut to before/after heights
-		if (percentage < 0) {
-			// Shortcut to previous value (during wait before)
-			return heightBefore;
-		} else if (percentage > 1 || isNaN(percentage)) {
-			// Shortcut to after value (during wait after)
-			return this.height;
-		} else {
-			// Calculate easing (during easing)
-			return (this.easing(percentage) * valueDiff) + heightBefore;
-		}
+		return (time: number) => {
+			const percentage = (time - this.waitBefore) / this.easeDuration;
+			// If before/after, just shortcut to before/after heights
+			if (percentage < 0) {
+				// Shortcut to previous value (during wait before)
+				return heightBefore;
+			} else if (percentage > 1 || isNaN(percentage)) {
+				// Shortcut to after value (during wait after)
+				return this.height;
+			} else {
+				// Calculate easing (during easing)
+				return (this.easing(percentage) * valueDiff) + heightBefore;
+			}
+		};
 	}
 
 }

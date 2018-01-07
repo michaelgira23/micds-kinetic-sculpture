@@ -1,5 +1,4 @@
 import { Formation } from './formation';
-import { MovePoint } from './move-point';
 
 /**
  * Storing sequences
@@ -61,17 +60,7 @@ export interface HeightDuration {
 export type Height = number;
 
 /**
- * Move points
- */
-
-export interface MovePointMapDuration {
-	[time: number]: MovePointMap;
-}
-
-export type MovePointMap = MovePoint[][];
-
-/**
- * Tick callback
+ * Tick Callback
  */
 
 export type TickCallback = (info: TickInfo) => TickCallbackReturn;

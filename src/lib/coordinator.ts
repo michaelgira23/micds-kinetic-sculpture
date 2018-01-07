@@ -1,7 +1,6 @@
 import { Formation } from './formation';
 import { Grid } from './grid';
 import {
-	EASING,
 	FormationSequence,
 	Globals,
 	HeightMapDuration,
@@ -9,18 +8,8 @@ import {
 	SEQUENCE_TYPE,
 	StoredSequence,
 	TickCallback,
-	Transition,
-	TransitionSequence
+	Transition
 } from './tick';
-
-const DEFAULT_TRANSITION: TransitionSequence = {
-	type: SEQUENCE_TYPE.TRANSITION,
-	transition: {
-		easing: EASING.LINEAR,
-		duration: 2000,
-		continuous: false
-	}
-};
 
 /**
  * Main class for blending together formations, playing them in loop
@@ -81,9 +70,8 @@ export class Coordinator {
 	export(loop = true) {
 		const heightMapDuration: HeightMapDuration = {};
 
-		let time = 0;
 		let lastHeightMap = this.grid.DEFAULT_HEIGHT_MAP;
-		let nextTransition: Transition | null = null;
+		let lastItemType: SEQUENCE_TYPE | null = null;
 
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
@@ -91,31 +79,47 @@ export class Coordinator {
 			const isLast = (i === this.sequence.length - 1);
 			const isEdge = isFirst || isLast;
 
-			// Ignore transitions that are first (because there's nothing to transition from!)
-			if (isFirst && item.type === 'transition') {
+			// Ignore transitions that are first or last (because there's nothing to transition to/from!)
+			if (isEdge && item.type === 'transition') {
 				continue;
 			}
 
 			switch (item.type) {
 				case SEQUENCE_TYPE.FORMATION:
 					// Get height map for this formation
-					const exportFormation = item.formation.exportHeightMapForDuration(item.duration, lastHeightMap);
+					const formationHeightMapDuration = item.formation.getHeightMapForDuration(item.duration, lastHeightMap);
+					const formationHeightMapTimes = Object.keys(formationHeightMapDuration);
 
-					for (let updateTime = time; updateTime <= time + item.duration; updateTime += this.grid.updateFrequency) {
-						heightMapDuration[updateTime] = exportFormation(updateTime - time);
+					// Get last height map for next formation
+					const formationLastTime = Number(formationHeightMapTimes[formationHeightMapTimes.length - 1]);
+					lastHeightMap = formationHeightMapDuration[formationLastTime];
+
+					// Append formation height map to the exportered height map
+					const exportedHeightMapTimes = Object.keys(heightMapDuration);
+					let exportedLastTime = 0;
+					let startAppendage = 0;
+					let newTotalDuration = formationLastTime;
+					if (!isFirst) {
+						exportedLastTime = Number(exportedHeightMapTimes[exportedHeightMapTimes.length - 1]);
+						startAppendage = exportedLastTime + this.grid.updateFrequency;
+						newTotalDuration = exportedLastTime + formationLastTime + this.grid.updateFrequency;
 					}
-
-					lastHeightMap = heightMapDuration[item.duration];
-					time += item.duration + this.grid.updateFrequency;
+					for (const key of formationHeightMapTimes) {
+						const time = Number(key);
+						let exportedTime = exportedLastTime + Number(time);
+						if (!isFirst) {
+							exportedTime += this.grid.updateFrequency;
+						}
+						heightMapDuration[exportedTime] = formationHeightMapDuration[time];
+					}
 
 					/** @todo Add transition */
 
-					nextTransition = null;
 					break;
 				case SEQUENCE_TYPE.TRANSITION:
-					nextTransition = item.transition;
 					break;
 			}
+			lastItemType = item.type;
 		}
 
 		/** @todo If loop is true, add transition to beginning and end */

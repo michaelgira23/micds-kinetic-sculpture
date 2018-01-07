@@ -1,7 +1,7 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import { MovePoint } from './move-point';
-import { EASING, Globals, HeightMap, HeightMapDuration, MovePointMapDuration, TickCallback } from './tick';
+import { EASING, Globals, HeightMap, HeightMapDuration, TickCallback } from './tick';
 
 /**
  * Class handling the tick function
@@ -11,31 +11,46 @@ export class Formation {
 	constructor(private grid: Grid, private callback: TickCallback, private globals: Globals = {}) { }
 
 	/**
-	 * Export function for giving height map of formation at time
+	 * Calculate height of each module for a duration of time
 	 */
 
-	exportHeightMapForDuration(duration: number, previousHeightMap: HeightMap = this.grid.DEFAULT_HEIGHT_MAP) {
+	getHeightMapForDuration(duration: number, previousHeightMap: HeightMap = this.grid.DEFAULT_HEIGHT_MAP) {
+		const heightMapDuration: HeightMapDuration = {};
 
-		// First, map out all move points
-		const movePointMapDuration: MovePointMapDuration = {};
-
+		// Iterate through each individual module
 		for (let x = 0; x < this.grid.nx; x++) {
 			for (let y = 0; y < this.grid.ny; y++) {
-
-				// When to call next tick callback
+				// Remember last updated value/time for easing
+				let previousValue = previousHeightMap[x][y];
 				let waitUntil = 0;
 
-				for (let time = 0; time <= duration; time++) {
-					if (time < waitUntil) {
+				// Fill times with previous height in case there are absolutely no move points for this module
+				for (let updateTime = 0; updateTime <= duration; updateTime += this.grid.updateFrequency) {
+					if (typeof heightMapDuration[updateTime] !== 'object') {
+						heightMapDuration[updateTime] = [];
+					}
+
+					if (typeof heightMapDuration[updateTime][x] !== 'object') {
+						heightMapDuration[updateTime][x] = [];
+					}
+
+					heightMapDuration[updateTime][x][y] = previousValue;
+				}
+
+				// Iterate through duration finding all the move points
+				for (let movePointTime = 0; movePointTime <= duration; movePointTime++) {
+					// Skip trying to calculate new move point if previous wait hasn't timed out
+					if (movePointTime < waitUntil) {
 						continue;
 					}
 
+					// const movePoint = this.getMovePoint(movePointTime, duration, x, y);
 					const movePoint = new MovePoint(this.callback({
 						globals: this.globals,
 						maxHeight: this.grid.maxHeight,
 						nx: this.grid.nx,
 						ny: this.grid.ny,
-						timeElapsed: time,
+						timeElapsed: movePointTime,
 						totalDuration: duration,
 						x,
 						y
@@ -45,55 +60,26 @@ export class Formation {
 						continue;
 					}
 
-					if (typeof movePointMapDuration[time] !== 'object') {
-						movePointMapDuration[time] = [];
-					}
-					if (typeof movePointMapDuration[time][x] !== 'object') {
-						movePointMapDuration[time][x] = [];
-					}
-					movePointMapDuration[time][x][y] = movePoint;
+					const movePointExport = movePoint.export(previousValue);
 
-					waitUntil = time + movePoint.duration;
+					// Round move point time up to next update frequency
+					const firstUpdateTime = Math.ceil(waitUntil / this.grid.updateFrequency) * this.grid.updateFrequency;
+					if (firstUpdateTime > movePointTime + movePoint.duration) {
+						continue;
+					}
+
+					// Update points
+					for (let updateTime = firstUpdateTime; updateTime <= duration; updateTime += this.grid.updateFrequency) {
+						heightMapDuration[updateTime][x][y] = movePointExport(updateTime - movePointTime)!;
+					}
+
+					previousValue = movePoint.height;
+					waitUntil = movePointTime + movePoint.duration;
 				}
 			}
 		}
 
-		return (time: number) => {
-			const heightMap: HeightMap = [];
-
-			for (let x = 0; x < this.grid.nx; x++) {
-				for (let y = 0; y < this.grid.ny; y++) {
-					// Ensure array exists and default to previous height map for last formation
-					if (typeof heightMap[x] !== 'object') {
-						heightMap[x] = [];
-					}
-					heightMap[x][y] = previousHeightMap[x][y];
-
-					// Iterate from current move point backwards in case current move point is null
-					for (let movePointTime = 0; movePointTime <= time; movePointTime++) {
-						let lastHeight = previousHeightMap[x][y];
-						if (movePointMapDuration[time] && movePointMapDuration[time][x] && movePointMapDuration[time][x][y]) {
-							const movePoint = movePointMapDuration[time][x][y];
-
-							if (movePointTime <= time && time <= movePointTime + movePoint.duration) {
-								const height = movePoint.getHeight(lastHeight, time);
-								if (height === null) {
-									continue;
-								} else {
-									heightMap[x][y] = height;
-									break;
-								}
-							}
-
-							lastHeight = movePoint.height!;
-							heightMap[x][y] = lastHeight;
-						}
-					}
-				}
-			}
-
-			return heightMap;
-		};
+		return heightMapDuration;
 	}
 
 }
