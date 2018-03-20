@@ -44,6 +44,8 @@ export interface Transition {
 	continuousAfter: boolean;
 }
 
+export type EasingFunction = (x: number) => number;
+
 /**
  * Mapping heights of modules
  */

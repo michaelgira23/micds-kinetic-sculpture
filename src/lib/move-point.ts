@@ -1,6 +1,6 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
-import { EASING, HeightDuration, TickCallbackReturn } from './tick';
+import { EASING, EasingFunction, HeightDuration, TickCallbackReturn } from './tick';
 
 /**
  * Represents a group of values returned from a tick callback
@@ -13,7 +13,7 @@ export class MovePoint {
 	}
 
 	readonly height: number | null = null;
-	readonly easing: (x: number) => number = EASING_FUNCTIONS[EASING.LINEAR];
+	readonly easing: EasingFunction = EASING_FUNCTIONS[EASING.LINEAR];
 	readonly waitBefore: number = 0;
 	readonly easeDuration: number = 0;
 	readonly waitAfter: number = 0;

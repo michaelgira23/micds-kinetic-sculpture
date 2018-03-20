@@ -14,7 +14,7 @@ import {
 	Transition,
 	TransitionSequence
 } from './tick';
-import { roundUp } from './utils';
+import { roundUp, transitionNumbers } from './utils';
 
 const DEFAULT_TRANSITION: Transition = {
 	easing: EASING.LINEAR,
@@ -83,7 +83,7 @@ export class Coordinator {
 		const heightMapDuration: HeightMapDuration = {};
 
 		let lastHeightMap = this.grid.DEFAULT_HEIGHT_MAP;
-		let nextTransition: Transition = JSON.parse(JSON.stringify(DEFAULT_TRANSITION));
+		let nextTransition: Transition = DEFAULT_TRANSITION;
 
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
@@ -128,6 +128,7 @@ export class Coordinator {
 					if (isFirst && !loop) {
 						startUpdate = 0;
 						startFormation = 0;
+						nextTransition = JSON.parse(JSON.stringify(nextTransition));
 						nextTransition.duration = 0;
 					}
 
@@ -199,8 +200,7 @@ export class Coordinator {
 					) {
 						const updateHeightMap = formationHeightMapDuration[updateTime - firstUpdateTime];
 						// How far is this instance is from previous formation (will be more than 1 if already completed)
-						const transitionPercentage = (updateTime - exportedLastTime) / nextTransition.duration;
-						// console.log(`At time ${updateTime} transition percentage is ${transitionPercentage}`);
+						const transitionPercentage = (updateTime - startFormation) / nextTransition.duration;
 						if (transitionPercentage < 1) {
 							// Go through all modules to calculate easing from previous last height map
 							if (!heightMapDuration[updateTime]) {
@@ -215,11 +215,9 @@ export class Coordinator {
 									// Transition from existing values to new formation values
 									const previousValue = heightMapDuration[updateTime][x][y];
 									const nextValue = updateHeightMap[x][y];
-									// console.log('transition from', previousValue, 'to', nextValue);
-									const valueDiff = nextValue - previousValue;
 									if (previousValue) {
-										const easingFunction = EASING_FUNCTIONS[nextTransition.easing];
-										heightMapDuration[updateTime][x][y] = easingFunction(transitionPercentage) * valueDiff + previousValue;
+										heightMapDuration[updateTime][x][y] =
+											transitionNumbers(EASING_FUNCTIONS[nextTransition.easing], previousValue, nextValue, transitionPercentage);
 									} else {
 										heightMapDuration[updateTime][x][y] = nextValue;
 									}

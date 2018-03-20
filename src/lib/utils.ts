@@ -2,6 +2,8 @@
  * @file Util functions for implementing formations
  */
 
+import { EasingFunction } from './tick';
+
 /**
  * Detect if module is in center
  */
@@ -44,6 +46,15 @@ export function polarCoordinates(nx: number, ny: number, x: number, y: number, c
 		radius,
 		theta
 	};
+}
+
+/**
+ * Find value in between two other values (for transitioning between)
+ */
+
+export function transitionNumbers(easeFunction: EasingFunction, from: number, to: number, percent: number) {
+	const valueDiff = to - from;
+	return (easeFunction(percent) * valueDiff) + from;
 }
 
 /**
