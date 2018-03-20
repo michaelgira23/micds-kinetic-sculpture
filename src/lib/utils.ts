@@ -77,3 +77,19 @@ export function toDegrees(radians: number) {
 export function isEven(num: number) {
 	return num % 2 === 0;
 }
+
+/**
+ * Round up to nearest multiple of a number
+ */
+
+export function roundUp(num: number, multiple: number) {
+	return Math.ceil(num / multiple) * multiple;
+}
+
+/**
+ * Round down to nearest multiple of a number
+ */
+
+export function roundDown(num: number, multiple: number) {
+	return Math.floor(num / multiple) * multiple;
+}

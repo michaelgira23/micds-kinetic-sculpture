@@ -304,10 +304,11 @@ export class VisualizerComponent implements OnInit {
 				}
 
 				const heightMapDuration = grid.coordinator.export();
+				const heightMapDurationTimes = Object.keys(heightMapDuration);
 				console.log('height map duration', heightMapDuration);
 
 				this.state = PLAYER_STATE.PLAYING;
-				this.current = 0;
+				this.current = Number(heightMapDurationTimes[0]);
 
 				const interval = setInterval(() => {
 					const heightMap = heightMapDuration[this.current];

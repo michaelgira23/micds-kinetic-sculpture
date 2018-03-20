@@ -44,7 +44,6 @@ export class Formation {
 						continue;
 					}
 
-					// const movePoint = this.getMovePoint(movePointTime, duration, x, y);
 					const movePoint = new MovePoint(this.callback({
 						globals: this.globals,
 						maxHeight: this.grid.maxHeight,
