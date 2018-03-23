@@ -98,7 +98,7 @@ export class VisualizerComponent implements OnInit {
 			// See if there's URL parameters
 			const params = this.route.snapshot.queryParams;
 			// Update loop value if it's valid
-			this.loop = !!params.loop;
+			this.loop = (params.loop === 'true');
 		});
 
 		// Animate Three.js
