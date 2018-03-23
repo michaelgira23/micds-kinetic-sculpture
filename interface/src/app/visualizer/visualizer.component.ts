@@ -10,6 +10,7 @@ import { formations } from '../../../../src/custom/formations';
 import { Grid } from '../../../../src/lib/grid';
 import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
+import { lastTime } from '../../../../src/lib/utils';
 
 @Component({
 	selector: 'app-visualizer',
@@ -305,7 +306,8 @@ export class VisualizerComponent implements OnInit {
 
 				const heightMapDuration = grid.coordinator.export();
 				const heightMapDurationTimes = Object.keys(heightMapDuration);
-				console.log('height map duration', heightMapDuration);
+				const heightMapDurationDuration = lastTime(heightMapDuration);
+				console.log('height map duration', heightMapDurationDuration, heightMapDuration);
 
 				this.state = PLAYER_STATE.PLAYING;
 				this.current = Number(heightMapDurationTimes[0]);

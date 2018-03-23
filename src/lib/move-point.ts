@@ -64,6 +64,7 @@ export class MovePoint {
 				// Shortcut to after value (during wait after)
 				return this.height;
 			} else {
+				/** @todo Use new `transitionNumbers` function in utils.ts once everything else works */
 				// Calculate easing (during easing)
 				return (this.easing(percentage) * valueDiff) + heightBefore;
 			}

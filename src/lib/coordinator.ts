@@ -14,7 +14,7 @@ import {
 	Transition,
 	TransitionSequence
 } from './tick';
-import { roundUp, transitionNumbers } from './utils';
+import { lastTime, roundUp, transitionNumbers } from './utils';
 
 const DEFAULT_TRANSITION: Transition = {
 	easing: EASING.LINEAR,
@@ -82,8 +82,9 @@ export class Coordinator {
 	export(loop = false) {
 		const heightMapDuration: HeightMapDuration = {};
 
+		let exportDuration = 0;
 		let lastHeightMap = this.grid.DEFAULT_HEIGHT_MAP;
-		let nextTransition: Transition = DEFAULT_TRANSITION;
+		let useTransition: Transition = DEFAULT_TRANSITION;
 
 		for (let i = 0; i < this.sequence.length; i++) {
 			const item = this.sequence[i];
@@ -97,110 +98,56 @@ export class Coordinator {
 			// }
 
 			switch (item.type) {
-				case SEQUENCE_TYPE.FORMATION:
-					// Calculate times to do shiz
-					const exportedLastTime = lastTime(heightMapDuration);
-
-					// At what time this formation (and transition) will affect current height map duration
-					let startUpdate = exportedLastTime;
-					if (nextTransition.continuousBefore) {
-						startUpdate -= nextTransition.duration;
-					}
-					startUpdate = Math.max(startUpdate, 0);
-
-					// When to start calculating current formation
-					// (May vary depending on whether we need a "freeze frame" for non-continuous transitions)
-					let startFormation = exportedLastTime;
-
-					if (nextTransition.continuousBefore) {
-						startFormation -= nextTransition.duration / 2;
-					} else {
-						startFormation += nextTransition.duration / 2;
-					}
-					if (nextTransition.continuousAfter) {
-						startFormation -= nextTransition.duration / 2;
-					} else {
-						startFormation += nextTransition.duration / 2;
+			case SEQUENCE_TYPE.FORMATION:
+					// When formation calculation technically starts
+					let startFormation = exportDuration;
+					if (useTransition.continuousBefore && useTransition.continuousAfter) {
+						startFormation -= useTransition.duration;
+					} else if (!useTransition.continuousBefore && !useTransition.continuousAfter) {
+						startFormation += useTransition.duration;
 					}
 					startFormation = Math.max(startFormation, 0);
+					// What time to start updating height map duration
+					let startFormationUpdate = roundUp(startFormation, this.grid.updateFrequency);
+
+					// When transition calculation technically starts
+					let startTransition = exportDuration;
+					if (useTransition.continuousBefore) {
+						startTransition = Math.max(exportDuration - useTransition.duration, 0);
+					}
+					// What time to start updating height map duration
+					let startTransitionUpdate = roundUp(startTransition, this.grid.updateFrequency);
 
 					// If not looping, just start off with first formation without any transition shiz
 					if (isFirst && !loop) {
-						startUpdate = 0;
 						startFormation = 0;
-						nextTransition = JSON.parse(JSON.stringify(nextTransition));
-						nextTransition.duration = 0;
+						startFormationUpdate = 0;
+						startTransition = 0;
+						startTransitionUpdate = 0;
+						useTransition = JSON.parse(JSON.stringify(useTransition));
+						useTransition.duration = 0;
 					}
 
-					// Round move point time up to next update frequency (to determine offset)
-					const firstUpdateTime = roundUp(startFormation, this.grid.updateFrequency);
-					// If formation goes so quick that it's shorter than update frequency, ignore
-					if (firstUpdateTime > exportedLastTime + item.duration) {
-						continue;
-					}
-					const offset = firstUpdateTime - startFormation;
-
-					// Get height map for this formation
-					let formationHeightMapDuration = item.formation.getHeightMapForDuration(
+					// Calculate formation's height map duration
+					const offset = startFormationUpdate - startFormation;
+					const formationHeightMapDuration = item.formation.getHeightMapForDuration(
 						item.duration,
 						offset,
 						lastHeightMap
 					);
-					const formationHeightMapTimes = Object.keys(formationHeightMapDuration);
-					const lastFormationTime = Number(formationHeightMapTimes[formationHeightMapTimes.length - 1]);
 
-					const firstHeightMapCurrent = formationHeightMapDuration[offset];
-
-					// If not continuous before, copy last height map of previous formation for duration of transition
-					if (!nextTransition.continuousBefore) {
-						for (
-							let updateTime = firstUpdateTime;
-							updateTime < startFormation;
-							updateTime += this.grid.updateFrequency
-						) {
-							formationHeightMapDuration[updateTime] = lastHeightMap;
-						}
-					}
-
-					// If not continuous after, copy first height map of formation for duration of transition
-					if (!nextTransition.continuousAfter) {
-						const oldFormation = JSON.parse(JSON.stringify(formationHeightMapDuration));
-						const newFormation = [];
-
-						// Add freeze frame
-						/** @todo Might work might not? */
-						let updateTime;
-						for (
-							updateTime = 0;
-							updateTime < nextTransition.duration;
-							updateTime += this.grid.updateFrequency
-						) {
-							newFormation[updateTime] = firstHeightMapCurrent;
-						}
-
-						const freezeFrameDuration = updateTime;
-
-						// Add rest of calculated formation
-						for (
-							updateTime;
-							updateTime < nextTransition.duration + lastFormationTime;
-							updateTime += this.grid.updateFrequency
-						) {
-							newFormation[updateTime] = formationHeightMapDuration[updateTime - freezeFrameDuration];
-						}
-
-						formationHeightMapDuration = newFormation;
-					}
+					const firstFormationHeightMap = formationHeightMapDuration[offset];
 
 					// Combine newly calculated formation (plus possible freeze frame) with existing height map duration
 					for (
-						let updateTime = firstUpdateTime;
-						formationHeightMapDuration[updateTime - firstUpdateTime];
+						let updateTime = startTransitionUpdate;
+						updateTime < startFormation + item.duration;
 						updateTime += this.grid.updateFrequency
 					) {
-						const updateHeightMap = formationHeightMapDuration[updateTime - firstUpdateTime];
+						const updateHeightMap = formationHeightMapDuration[updateTime - startFormation];
 						// How far is this instance is from previous formation (will be more than 1 if already completed)
-						const transitionPercentage = (updateTime - startFormation) / nextTransition.duration;
+						const transitionPercentage = (updateTime - startTransition) / useTransition.duration;
+
 						if (transitionPercentage < 1) {
 							// Go through all modules to calculate easing from previous last height map
 							if (!heightMapDuration[updateTime]) {
@@ -211,51 +158,40 @@ export class Coordinator {
 									heightMapDuration[updateTime][x] = [];
 								}
 								for (let y = 0; y < this.grid.ny; y++) {
-
-									// Transition from existing values to new formation values
-									const previousValue = heightMapDuration[updateTime][x][y];
-									const nextValue = updateHeightMap[x][y];
-									if (previousValue) {
-										heightMapDuration[updateTime][x][y] =
-											transitionNumbers(EASING_FUNCTIONS[nextTransition.easing], previousValue, nextValue, transitionPercentage);
-									} else {
-										heightMapDuration[updateTime][x][y] = nextValue;
+									// If no existing value for current time, it means continuousBefore transition. Default to latest value.
+									if (typeof heightMapDuration[updateTime][x][y] !== 'number') {
+										heightMapDuration[updateTime][x][y] = lastHeightMap[x][y];
 									}
+									const previousValue = heightMapDuration[updateTime][x][y];
+
+									// Use new value from calculated formation if available; otherwise, fall back to first height map.
+									const nextValue = updateHeightMap ? updateHeightMap[x][y] : firstFormationHeightMap[x][y];
+
+									heightMapDuration[updateTime][x][y] =
+										transitionNumbers(EASING_FUNCTIONS[useTransition.easing], previousValue, nextValue, transitionPercentage);
 								}
 							}
 						} else {
+							// If no transition going on, expedite the calculations and just use formation's height map
 							heightMapDuration[updateTime] = updateHeightMap;
 						}
 					}
 
+					exportDuration = startFormation + item.duration;
 					lastHeightMap = formationHeightMapDuration[lastTime(formationHeightMapDuration)];
-					nextTransition = DEFAULT_TRANSITION;
+					useTransition = DEFAULT_TRANSITION;
 					break;
 				case SEQUENCE_TYPE.TRANSITION:
-					nextTransition = item.transition;
+					useTransition = item.transition;
 					break;
 			}
 		}
 
 		/** @todo If loop is true, add transition to beginning and end */
 
+		console.log('export duration', exportDuration);
+
 		return heightMapDuration;
 	}
 
-}
-
-/**
- * Gets the last time of a height map duration
- */
-
-function lastTime(duration: { [time: number]: any }) {
-	if (typeof duration !== 'object') {
-		return 0;
-	}
-	const times = Object.keys(duration);
-	if (times.length <= 0) {
-		return 0;
-	} else {
-		return Number(times[times.length - 1]);
-	}
 }

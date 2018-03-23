@@ -49,6 +49,22 @@ export function polarCoordinates(nx: number, ny: number, x: number, y: number, c
 }
 
 /**
+ * Gets the last time of a height map duration
+ */
+
+export function lastTime(duration: { [time: number]: any }) {
+	if (typeof duration !== 'object') {
+		return 0;
+	}
+	const times = Object.keys(duration);
+	if (times.length <= 0) {
+		return 0;
+	} else {
+		return Number(times[times.length - 1]);
+	}
+}
+
+/**
  * Find value in between two other values (for transitioning between)
  */
 
@@ -103,4 +119,15 @@ export function roundUp(num: number, multiple: number) {
 
 export function roundDown(num: number, multiple: number) {
 	return Math.floor(num / multiple) * multiple;
+}
+
+/**
+ * Round a number to a certain amount of decimal pounts
+ */
+
+export function round(num: number, precision = 2) {
+	const factor = Math.pow(10, precision);
+	const tempNumber = num * factor;
+	const roundedTempNumber = Math.round(tempNumber);
+	return roundedTempNumber / factor;
 }
