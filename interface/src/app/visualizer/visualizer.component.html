@@ -7,6 +7,11 @@
 				<input type="checkbox" [(ngModel)]="showModuleLabels">
 				Show Module Labels
 			</label>
+			<label class="overlay-text">
+				<input type="checkbox" [(ngModel)]="loop">
+				Loop
+			</label>
+			<button class="btn btn-danger" (click)="stopAnimate()" [disabled]="state !== PLAYER_STATE.PLAYING">Stop</button>
 			<button class="btn btn-info" (click)="animate()" [disabled]="state === PLAYER_STATE.PLAYING">{{ state === PLAYER_STATE.PLAYING ? 'Playing...' : 'Play' }}</button>
 		</div>
 		<canvas #visualizer></canvas>

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as ResizeSensor from 'css-element-queries/src/ResizeSensor';
 import * as THREE from 'three';
 import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
@@ -23,6 +23,7 @@ export class VisualizerComponent implements OnInit {
 	@ViewChild('visualizer') canvas: ElementRef;
 
 	updateURLTimeout: any;
+	animateInterval: any;
 
 	// Height of sculpture (max height modules can reach)
 	maxHeight = 10;
@@ -69,13 +70,22 @@ export class VisualizerComponent implements OnInit {
 	}
 	private _selectedName: string;
 
+	get loop() {
+		return this._loop;
+	}
+	set loop(value: boolean) {
+		this._loop = value;
+		this.updateUrl();
+	}
+	private _loop: boolean;
+
 
 	current = 0;
 	PLAYER_STATE = PLAYER_STATE;
 	state = PLAYER_STATE.NOT_STARTED;
 	showModuleLabels = false;
 
-	constructor(private router: Router) { }
+	constructor(private router: Router, private route: ActivatedRoute) { }
 
 	ngOnInit() {
 		this.setupScene();
@@ -84,6 +94,14 @@ export class VisualizerComponent implements OnInit {
 		this.setupModules();
 		this.setupCamera();
 
+		setTimeout(() => {
+			// See if there's URL parameters
+			const params = this.route.snapshot.queryParams;
+			// Update loop value if it's valid
+			this.loop = !!params.loop;
+		});
+
+		// Animate Three.js
 		const animate = () => {
 			requestAnimationFrame(animate);
 			this.controls.update();
@@ -304,27 +322,48 @@ export class VisualizerComponent implements OnInit {
 						break;
 				}
 
-				const heightMapDuration = grid.coordinator.export();
+				const heightMapDuration = grid.coordinator.export(this.loop);
 				const heightMapDurationTimes = Object.keys(heightMapDuration);
 				const heightMapDurationDuration = lastTime(heightMapDuration);
+				const startTime = Number(heightMapDurationTimes[0]);
 				console.log('height map duration', heightMapDurationDuration, heightMapDuration);
 
 				this.state = PLAYER_STATE.PLAYING;
-				this.current = Number(heightMapDurationTimes[0]);
+				this.current = startTime;
 
-				const interval = setInterval(() => {
-					const heightMap = heightMapDuration[this.current];
+				this.animateInterval = setInterval(() => {
+					let heightMap = heightMapDuration[this.current];
+					// Check if current height map duration has finished playing
 					if (!heightMap) {
-						clearInterval(interval);
-						this.state = PLAYER_STATE.FINISHED;
-						resolve();
-						return;
+						// If looping, just start back at beginning
+						if (this.loop) {
+							this.current = startTime;
+							heightMap = heightMapDuration[this.current];
+						} else {
+							// If not looping, just stop
+							clearInterval(this.animateInterval);
+							this.state = PLAYER_STATE.FINISHED;
+							resolve();
+							return;
+						}
 					}
 					this.updateHeightMap(heightMap);
 					this.current += grid.updateFrequency;
 				}, grid.updateFrequency);
 			});
 		}, 7);
+	}
+
+	/**
+	 * Stop animation
+	 */
+
+	stopAnimate() {
+		if (this.animateInterval) {
+			clearInterval(this.animateInterval);
+		}
+		this.animateInterval = null;
+		this.state = PLAYER_STATE.FINISHED;
 	}
 
 	/**
@@ -403,7 +442,8 @@ export class VisualizerComponent implements OnInit {
 			this.router.navigate(['/visualizer'], {
 				queryParams: {
 					type: this.selectedType,
-					name: this.selectedName
+					name: this.selectedName,
+					loop: this.loop
 				}
 			});
 		}, 500);

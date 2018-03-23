@@ -189,8 +189,6 @@ export class Coordinator {
 
 		/** @todo If loop is true, add transition to beginning and end */
 
-		console.log('export duration', exportDuration);
-
 		return heightMapDuration;
 	}
 
