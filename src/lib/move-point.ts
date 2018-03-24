@@ -1,6 +1,7 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import { EASING, EasingFunction, HeightDuration, TickCallbackReturn } from './tick';
+import { transitionNumbers } from './utils';
 
 /**
  * Represents a group of values returned from a tick callback
@@ -64,9 +65,8 @@ export class MovePoint {
 				// Shortcut to after value (during wait after)
 				return this.height;
 			} else {
-				/** @todo Use new `transitionNumbers` function in utils.ts once everything else works */
 				// Calculate easing (during easing)
-				return (this.easing(percentage) * valueDiff) + heightBefore;
+				return transitionNumbers(this.easing, heightBefore, this.height!, percentage);
 			}
 		};
 	}
