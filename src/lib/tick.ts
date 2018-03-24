@@ -10,7 +10,7 @@ export interface StoredFormationSequence {
 	type: 'formation';
 	formation: {
 		function: TickCallback;
-		globals?: Globals;
+		globals?: any;
 	};
 	duration: number;
 }
@@ -70,7 +70,7 @@ export type TickCallback = (info: TickInfo) => TickCallbackReturn;
 export type TickCallbackReturn = Partial<MovePointReturn> | number | void;
 
 export interface TickInfo {
-	globals: Globals;
+	globals: any;
 	maxHeight: number;
 	nx: number;
 	ny: number;
@@ -78,10 +78,6 @@ export interface TickInfo {
 	totalDuration: number;
 	x: number;
 	y: number;
-}
-
-export interface Globals {
-	[key: string]: any;
 }
 
 export interface MovePointReturn {

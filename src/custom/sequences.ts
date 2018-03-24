@@ -75,6 +75,15 @@ export const sequences: { [name: string]: StoredSequence } = {
 				function: formations.siny
 			},
 			duration: 5000
+		},
+		{
+			type: SEQUENCE_TYPE.TRANSITION,
+			transition: {
+				easing: EASING.LINEAR,
+				duration: 2000,
+				continuousBefore: true,
+				continuousAfter: true
+			}
 		}
 	],
 	sineNoncontinuous: [

@@ -4,7 +4,6 @@ import { Grid } from './grid';
 import {
 	EASING,
 	FormationSequence,
-	Globals,
 	HeightMap,
 	HeightMapDuration,
 	Sequence,
@@ -35,7 +34,7 @@ export class Coordinator {
 		this.sequence = [];
 	}
 
-	addFormation(callback: TickCallback, duration: number, globals?: Globals, index: number = this.sequence.length) {
+	addFormation(callback: TickCallback, duration: number, globals?: any, index: number = this.sequence.length) {
 		this.sequence.splice(index, 0, {
 			type: SEQUENCE_TYPE.FORMATION,
 			formation: new Formation(this.grid, callback, globals),
@@ -85,20 +84,31 @@ export class Coordinator {
 		let exportDuration = 0;
 		let lastHeightMap = this.grid.DEFAULT_HEIGHT_MAP;
 		let useTransition: Transition = DEFAULT_TRANSITION;
+		const useSequence: Sequence = this.sequence.slice(0);
 
-		for (let i = 0; i < this.sequence.length; i++) {
-			const item = this.sequence[i];
+		// If looping, put beginning formation also at the end
+		if (loop) {
+			for (const item of useSequence) {
+				if (item.type === SEQUENCE_TYPE.FORMATION) {
+					useSequence.push(item);
+					break;
+				}
+			}
+		}
+
+		// Formations already processed
+		let nFormations = 0;
+		// When to cut the rest of the height maps (when looping from last formation)
+		let cutBeginning = 0;
+		let cutEnd = Number.POSITIVE_INFINITY;
+
+		for (let i = 0; i < useSequence.length; i++) {
+			const item = useSequence[i];
 			const isFirst = (i === 0);
-			const isLast = (i === this.sequence.length - 1);
-			const isEdge = isFirst || isLast;
-
-			// Ignore transitions that are first or last (because there's nothing to transition to/from!)
-			// if (isEdge && item.type === 'transition') {
-			// 	continue;
-			// }
+			const isLast = (i === useSequence.length - 1);
 
 			switch (item.type) {
-			case SEQUENCE_TYPE.FORMATION:
+				case SEQUENCE_TYPE.FORMATION:
 					// When formation calculation technically starts
 					let startFormation = exportDuration;
 					if (useTransition.continuousBefore && useTransition.continuousAfter) {
@@ -119,13 +129,20 @@ export class Coordinator {
 					let startTransitionUpdate = roundUp(startTransition, this.grid.updateFrequency);
 
 					// If not looping, just start off with first formation without any transition shiz
-					if (isFirst && !loop) {
+					if (isFirst) {
 						startFormation = 0;
 						startFormationUpdate = 0;
 						startTransition = 0;
 						startTransitionUpdate = 0;
 						useTransition = JSON.parse(JSON.stringify(useTransition));
 						useTransition.duration = 0;
+					}
+
+					// If looping and this is second formation, cut off previous formation that isn't part of transition
+					if (loop && isLast) {
+						const transitionEnds = startTransition + useTransition.duration;
+						cutBeginning = transitionEnds - startFormation;
+						cutEnd = transitionEnds;
 					}
 
 					// Calculate formation's height map duration
@@ -135,7 +152,6 @@ export class Coordinator {
 						offset,
 						lastHeightMap
 					);
-
 					const firstFormationHeightMap = formationHeightMapDuration[offset];
 
 					// Combine newly calculated formation (plus possible freeze frame) with existing height map duration
@@ -178,6 +194,7 @@ export class Coordinator {
 					}
 
 					exportDuration = startFormation + item.duration;
+					nFormations++;
 					lastHeightMap = formationHeightMapDuration[lastTime(formationHeightMapDuration)];
 					useTransition = DEFAULT_TRANSITION;
 					break;
@@ -187,9 +204,21 @@ export class Coordinator {
 			}
 		}
 
-		/** @todo If loop is true, add transition to beginning and end */
+		// Cut out any beginning/end formations and shift all height maps so they begin at 0
+		// This completes the process of smoothly looping a height map duration
+		const heightMapDurationTimes = Object.keys(heightMapDuration).map(k => Number(k));
+		const shiftHeightMaps = roundUp(cutBeginning, this.grid.updateFrequency);
 
-		return heightMapDuration;
+		const cleanedHeightMapDuration: HeightMapDuration = {};
+
+		// Delete any height maps that should be cut
+		for (let time = 0; time <= exportDuration; time += this.grid.updateFrequency) {
+			if (cutBeginning <= time && time < cutEnd) {
+				cleanedHeightMapDuration[time - shiftHeightMaps] = heightMapDuration[time];
+			}
+		}
+
+		return cleanedHeightMapDuration;
 	}
 
 }
