@@ -47,6 +47,26 @@ export interface Transition {
 export type EasingFunction = (x: number) => number;
 
 /**
+ * Mapping move points for manually coded formations
+ */
+
+export interface MovePointMapDuration {
+	[time: number]: TickCallbackReturn | MovePointMapRow;
+}
+
+interface MovePointMapRow {
+	[x: number]: TickCallbackReturn | MovePointMapColumns;
+}
+
+export interface MovePointMap {
+	[x: number]: MovePointMapColumns;
+}
+
+export interface MovePointMapColumns {
+	[y: number]: TickCallbackReturn;
+}
+
+/**
  * Mapping heights of modules
  */
 

@@ -2,7 +2,7 @@
  * @file Util functions for implementing formations
  */
 
-import { EasingFunction } from './tick';
+import { EasingFunction } from '../tick';
 
 /**
  * Detect if module is in center
@@ -46,22 +46,6 @@ export function polarCoordinates(nx: number, ny: number, x: number, y: number, c
 		radius,
 		theta
 	};
-}
-
-/**
- * Gets the last time of a height map duration
- */
-
-export function lastTime(duration: { [time: number]: any }) {
-	if (typeof duration !== 'object') {
-		return 0;
-	}
-	const times = Object.keys(duration);
-	if (times.length <= 0) {
-		return 0;
-	} else {
-		return Number(times[times.length - 1]);
-	}
 }
 
 /**

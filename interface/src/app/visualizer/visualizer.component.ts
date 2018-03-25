@@ -10,7 +10,7 @@ import { formations } from '../../../../src/custom/formations';
 import { Grid } from '../../../../src/lib/grid';
 import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
-import { lastTime } from '../../../../src/lib/utils';
+import { lastTime } from '../../../../src/lib/formation';
 
 @Component({
 	selector: 'app-visualizer',

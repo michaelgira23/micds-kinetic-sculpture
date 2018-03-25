@@ -1,5 +1,6 @@
 import { EASING_FUNCTIONS } from './easings';
-import { Formation } from './formation';
+import { Formation, lastTime } from './formation';
+import { roundUp, transitionNumbers } from './formation-helpers/utils';
 import { Grid } from './grid';
 import {
 	EASING,
@@ -13,7 +14,6 @@ import {
 	Transition,
 	TransitionSequence
 } from './tick';
-import { lastTime, roundUp, transitionNumbers } from './utils';
 
 const DEFAULT_TRANSITION: Transition = {
 	easing: EASING.LINEAR,

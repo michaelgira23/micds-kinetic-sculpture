@@ -1,7 +1,7 @@
 import { EASING_FUNCTIONS } from './easings';
+import { transitionNumbers } from './formation-helpers/utils';
 import { Grid } from './grid';
 import { EASING, EasingFunction, HeightDuration, TickCallbackReturn } from './tick';
-import { transitionNumbers } from './utils';
 
 /**
  * Represents a group of values returned from a tick callback
@@ -71,4 +71,19 @@ export class MovePoint {
 		};
 	}
 
+}
+
+/**
+ * Determines if a value is a valid value that could be returned by a tick callback
+ * (excluding null and undefined)
+ */
+
+export function isTickCallbackReturn(value: any) {
+	if (typeof value === 'object' && value !== null) {
+		return true;
+	}
+	if (typeof value === 'number') {
+		return true;
+	}
+	return false;
 }

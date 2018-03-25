@@ -82,3 +82,19 @@ export class Formation {
 	}
 
 }
+
+/**
+ * Gets the last time of a height map duration
+ */
+
+export function lastTime(duration: { [time: number]: any }) {
+	if (typeof duration !== 'object') {
+		return 0;
+	}
+	const times = Object.keys(duration);
+	if (times.length <= 0) {
+		return 0;
+	} else {
+		return Number(times[times.length - 1]);
+	}
+}

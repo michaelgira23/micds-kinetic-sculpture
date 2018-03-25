@@ -1,6 +1,7 @@
+import { ManualFormation } from '../lib/formation-helpers/manual-formation';
+import { isCenter, polarCoordinates, toRadians } from '../lib/formation-helpers/utils';
 import { random } from '../lib/rng';
 import { EASING, TickCallback } from '../lib/tick';
-import { isCenter, polarCoordinates, toRadians } from '../lib/utils';
 
 export const formations: { [name: string]: TickCallback } = {
 
@@ -123,10 +124,40 @@ export const formations: { [name: string]: TickCallback } = {
 			};
 		} else if (startRipple <= timeElapsed && timeElapsed < startRipple + rippleDuration) {
 			const rippleElapsed = timeElapsed - startRipple;
-			const rippleHeight = -waveHeight * (Math.E ** (-0.3 * radius) * Math.cos(radius - (rippleElapsed / 300)));
+			const theta = radius - (rippleElapsed / 300);
+
+			if (theta > 0) {
+				return;
+			}
+
+			const rippleHeight = -waveHeight * (Math.E ** (-0.3 * radius) * Math.cos(theta));
 			return (waveHeight / 2) + rippleHeight * ((rippleDuration - rippleElapsed) / rippleDuration);
 		} else {
 			return (waveHeight / 2);
 		}
-	}
+	},
+
+	/**
+	 * Test of manual formations
+	 */
+
+	manualTest: new ManualFormation({
+		0: 1,
+		1000: {
+			0: {
+				height: 2,
+				easeDuration: 1000,
+				easing: EASING.EASE_IN_EXPO
+			}
+		},
+		2000: {
+			0: {
+				4: {
+					height: 3,
+					easeDuration: 1000,
+					easing: EASING.EASE_IN_OUT_EXPO
+				}
+			}
+		}
+	}).export()
 };
