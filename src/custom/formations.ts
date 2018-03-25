@@ -100,72 +100,33 @@ export const formations: { [name: string]: TickCallback } = {
 	 * Ripple effect
 	 */
 
-	ripple: info => {
-		const xMid = info.nx / 2;
-		const yMid = info.ny / 2;
-		const r = (Math.pow(Math.abs(info.x - xMid), 2) + Math.pow(Math.abs(info.y - yMid), 2));
-		const int = 0.5;
-		const h = int * 100 * Math.sin((info.timeElapsed) / 360 + r / (int * 10)) / (r + info.timeElapsed / 360);
+	ripple: ({ timeElapsed, maxHeight, nx, ny, x, y }) => {
+		// y = -e^(-kx) * sin(x)
+		const { radius } = polarCoordinates(nx, ny, x, y, false);
 
-		return {
-			height: h,
-			easing: EASING.EASE_IN_QUAD
+		const waveHeight = maxHeight / 2;
+		const dropTiming = {
+			waitBefore: 500,
+			duration: 1000
 		};
-	},
-
-	/**
-	 * Raindrop effect
-	 */
-
-	raindrop: ({ nx, ny, x, y, timeElapsed, maxHeight }) => {
-		const impactTime = 2000;
-
-		const { center } = isCenter(nx, ny, x, y);
+		const startRipple = dropTiming.waitBefore + dropTiming.duration;
+		const rippleDuration = 6000;
 
 		if (timeElapsed === 0) {
+			return radius < 1 ? maxHeight : (waveHeight / 2);
+		} else if (timeElapsed === 1) {
 			return {
-				height: center ? maxHeight : (maxHeight / 4),
-				wait: impactTime
+				height: (waveHeight / 2),
+				easing: EASING.EASE_IN_QUAD,
+				waitBefore: dropTiming.waitBefore,
+				easeDuration: dropTiming.duration
 			};
+		} else if (startRipple <= timeElapsed && timeElapsed < startRipple + rippleDuration) {
+			const rippleElapsed = timeElapsed - startRipple;
+			const rippleHeight = waveHeight * (Math.E ** (-0.3 * radius) * Math.sin(radius - (rippleElapsed / 300)));
+			return (waveHeight / 2) + rippleHeight * ((rippleDuration - rippleElapsed) / rippleDuration);
 		} else {
-			const { radius } = polarCoordinates(nx, ny, x, y);
-			return Math.sin((timeElapsed - impactTime) / 100) * (maxHeight / 2);
-		}
-
-		// if (timeElapsed >= impactTime || (timeElapsed < impactTime && center)) {
-		// 	const polar = polarCoordinates(nx, ny, x, y);
-		// 	const n = toRadians((timeElapsed - impactTime) / 10) - polar.radius;
-		// 	return (Math.sin(n) / (n / 2)) * maxHeight / 2;
-		// } else if (center) {
-		// 	if (timeElapsed === 0) {
-		// 		console.log('time elapsed 0', maxHeight)
-		// 		return maxHeight;
-		// 	} else {
-		// 		return {
-		// 			height: 0,
-		// 			wait: impactTime
-		// 		};
-		// 	}
-		// } else {
-		// 	return 0;
-		// }
-	},
-
-	/**
-	 * Test
-	 */
-
-	test: info => {
-		if (info.timeElapsed === 0) {
-			return {
-				height: info.maxHeight / 2,
-				easing: EASING.EASE_IN_CIRC,
-				waitBefore: 1000,
-				easeDuration: 2000,
-				waitAfter: 1000
-			};
-		} else if (info.timeElapsed === 4000) {
-			return 0;
+			return (waveHeight / 2);
 		}
 	}
 };
