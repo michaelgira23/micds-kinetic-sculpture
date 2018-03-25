@@ -1,7 +1,7 @@
 import { EASING_FUNCTIONS } from './easings';
 import { transitionNumbers } from './formation-helpers/utils';
 import { Grid } from './grid';
-import { EASING, EasingFunction, HeightDuration, TickCallbackReturn } from './tick';
+import { EASING, EasingFunction, HeightDuration, TickCallbackReturn, TickInfo } from './tick';
 
 /**
  * Represents a group of values returned from a tick callback
@@ -19,15 +19,23 @@ export class MovePoint {
 	readonly easeDuration: number = 0;
 	readonly waitAfter: number = 0;
 
-	constructor(values: TickCallbackReturn) {
+	constructor(private tickInfo: TickInfo, values: TickCallbackReturn) {
+		// Recursively call TickCallback until it returns something
+		while (typeof values === 'function') {
+			values = values(this.tickInfo);
+		}
+
+		// If number, only set height
 		if (typeof values === 'number') {
 			this.height = values;
 			return;
 		}
 
+		// We don't want anything to do with objects
 		if (typeof values !== 'object') {
 			return;
 		}
+
 		if (typeof values.height === 'number') {
 			this.height = values.height;
 		}
@@ -80,6 +88,9 @@ export class MovePoint {
 
 export function isTickCallbackReturn(value: any) {
 	if (typeof value === 'object' && value !== null) {
+		return true;
+	}
+	if (typeof value === 'function') {
 		return true;
 	}
 	if (typeof value === 'number') {

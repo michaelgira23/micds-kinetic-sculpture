@@ -1,7 +1,7 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import { MovePoint } from './move-point';
-import { EASING, HeightMap, HeightMapDuration, TickCallback } from './tick';
+import { EASING, HeightMap, HeightMapDuration, TickCallback, TickInfo } from './tick';
 
 /**
  * Class handling the tick function
@@ -44,7 +44,7 @@ export class Formation {
 						continue;
 					}
 
-					const movePoint = new MovePoint(this.callback({
+					const tickInfo: TickInfo = {
 						globals: this.globals,
 						maxHeight: this.grid.maxHeight,
 						nx: this.grid.nx,
@@ -53,7 +53,9 @@ export class Formation {
 						totalDuration: duration,
 						x,
 						y
-					}));
+					};
+
+					const movePoint = new MovePoint(tickInfo, this.callback);
 
 					if (movePoint.height === null) {
 						continue;

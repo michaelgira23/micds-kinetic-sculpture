@@ -87,7 +87,7 @@ export type Height = number;
  */
 
 export type TickCallback = (info: TickInfo) => TickCallbackReturn;
-export type TickCallbackReturn = Partial<MovePointReturn> | number | void;
+export type TickCallbackReturn = TickCallback | Partial<MovePointReturn> | number | void;
 
 export interface TickInfo {
 	globals: any;

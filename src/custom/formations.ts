@@ -1,4 +1,4 @@
-import { ManualFormation } from '../lib/formation-helpers/manual-formation';
+import { StateRouter } from '../lib/formation-helpers/state-router';
 import { isCenter, polarCoordinates, toRadians } from '../lib/formation-helpers/utils';
 import { random } from '../lib/rng';
 import { EASING, TickCallback } from '../lib/tick';
@@ -55,8 +55,17 @@ export const formations: { [name: string]: TickCallback } = {
 	},
 
 	/**
-	 * Two "designs"
+	 * Two waves AT THE SAME TIME.
 	 */
+
+	 // alternate: new StateRouter({
+		//  0: ({ maxHeight, x }) => {
+		// 	 return {
+		// 		 height: maxHeight / 2,
+		// 		 waitAfter: x * 200
+		// 	 };
+		//  }
+	 // }).export(),
 
 	alternate: ({ x, y, timeElapsed, totalDuration, maxHeight }) => {
 		if (timeElapsed === 0) {
@@ -141,7 +150,7 @@ export const formations: { [name: string]: TickCallback } = {
 	 * Test of manual formations
 	 */
 
-	manualTest: new ManualFormation({
+	manualTest: new StateRouter({
 		0: 1,
 		1000: {
 			0: {
