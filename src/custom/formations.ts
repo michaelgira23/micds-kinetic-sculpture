@@ -110,11 +110,11 @@ export const formations: { [name: string]: TickCallback } = {
 			duration: 1000
 		};
 		const startRipple = dropTiming.waitBefore + dropTiming.duration;
-		const rippleDuration = 6000;
+		const rippleDuration = 8000;
 
 		if (timeElapsed === 0) {
 			return radius < 1 ? maxHeight : (waveHeight / 2);
-		} else if (timeElapsed === 1) {
+		} else if (timeElapsed === 1 && radius < 1) {
 			return {
 				height: (waveHeight / 2),
 				easing: EASING.EASE_IN_QUAD,
@@ -123,7 +123,7 @@ export const formations: { [name: string]: TickCallback } = {
 			};
 		} else if (startRipple <= timeElapsed && timeElapsed < startRipple + rippleDuration) {
 			const rippleElapsed = timeElapsed - startRipple;
-			const rippleHeight = waveHeight * (Math.E ** (-0.3 * radius) * Math.sin(radius - (rippleElapsed / 300)));
+			const rippleHeight = -waveHeight * (Math.E ** (-0.3 * radius) * Math.cos(radius - (rippleElapsed / 300)));
 			return (waveHeight / 2) + rippleHeight * ((rippleDuration - rippleElapsed) / rippleDuration);
 		} else {
 			return (waveHeight / 2);
