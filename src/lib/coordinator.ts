@@ -213,7 +213,7 @@ export class Coordinator {
 		const cleanedHeightMapDuration: HeightMapDuration = {};
 
 		// Delete any height maps that should be cut
-		for (let time = 0; time <= exportDuration; time += this.grid.updateFrequency) {
+		for (let time = 0; time <= exportDuration - this.grid.updateFrequency; time += this.grid.updateFrequency) {
 			if (cutBeginning <= time && time < cutEnd) {
 				cleanedHeightMapDuration[time - shiftHeightMaps] = heightMapDuration[time];
 			}
