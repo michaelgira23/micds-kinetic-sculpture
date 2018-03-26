@@ -56,55 +56,48 @@ export const formations: { [name: string]: TickCallback } = {
 
 	/**
 	 * Two waves AT THE SAME TIME.
+	 * Globals:
+	 * `onlyCompleteCycles` - Whether or not wave should go even if there's not enough time to finish
 	 */
 
-	 // alternate: new StateRouter({
-		//  0: ({ maxHeight, x }) => {
-		// 	 return {
-		// 		 height: maxHeight / 2,
-		// 		 waitAfter: x * 200
-		// 	 };
-		//  }
-	 // }).export(),
-
-	alternate: ({ x, y, timeElapsed, totalDuration, maxHeight }) => {
-		if (timeElapsed === 0) {
+	alternate: new StateRouter({
+		0: ({ maxHeight, x }) => {
+			console.log('wait', x, x * 200);
 			return {
 				height: maxHeight / 2,
 				waitAfter: x * 200
 			};
-		}
+		},
+		1: ({ globals, maxHeight, timeElapsed, totalDuration, x, y }) => {
+			const wait = 1500;
+			const sequence = [0, 1, 0, -1];
 
-		const wait = 1500;
-		const sequence = [0, 1, 0, -1];
-
-		// Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
-		let multiplier = 0;
-		for (let i = 0; i < sequence.length; i++) {
+			// Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
+			let multiplier = 0;
 			const step = Math.floor(timeElapsed / wait) % sequence.length;
-			if (step === i) {
-				multiplier = sequence[i];
+			multiplier = sequence[step];
+
+			if (globals.onlyCompleteCycles) {
+				// Check if we have enough time, otherwise we should default back to 0
+				if (multiplier !== 0 && (timeElapsed + (wait * 2)) > totalDuration) {
+					multiplier = 0;
+				}
 			}
-		}
 
-		// Check if we have enough time, otherwise we should default back to 0
-		if (multiplier !== 0 && (timeElapsed + (wait * 2)) > totalDuration) {
-			multiplier = 0;
-		}
+			let height = (maxHeight / 2) * multiplier;
+			if ((x + y) % 2 === 0) {
+				height *= -1;
+			}
+			height += maxHeight / 2;
 
-		let height = (maxHeight / 2) * multiplier;
-		if ((x + y) % 2 === 0) {
-			height *= -1;
+			return {
+				height,
+				easing: EASING.EASE_IN_OUT_QUINT,
+				easeDuration: 1000,
+				waitAfter: wait - 1000
+			};
 		}
-		height += maxHeight / 2;
-
-		return {
-			height,
-			easing: EASING.EASE_IN_OUT_QUINT,
-			easeDuration: 1000,
-			waitAfter: wait - 1000
-		};
-	},
+	}).export(),
 
 	/**
 	 * Ripple effect

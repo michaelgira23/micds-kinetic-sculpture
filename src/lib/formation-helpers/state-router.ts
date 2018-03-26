@@ -10,7 +10,7 @@ export class StateRouter {
 	private times: number[] = [];
 
 	constructor(private config: StateRouterConfig, private duration?: number, private loop = true) {
-		this.times = Object.keys(config).map(k => Number(k));
+		this.times = Object.keys(config).map(k => Number(k)).sort().reverse();
 	}
 
 	export(): TickCallback {
@@ -30,18 +30,18 @@ export class StateRouter {
 				if (time <= timeElapsed) {
 
 					// Finally fall back to returning value for whole grid
-					if (isTickCallbackReturn(this.config[timeElapsed])) {
+					if (isTickCallbackReturn(this.config[time])) {
 						// Second fall back to returning value for specific row
 						// Any object is a valid TickCallback return, so we must check deeper
-						if (isTickCallbackReturn((this.config[timeElapsed] as StateRouterConfigColumns)[x])) {
+						if (isTickCallbackReturn((this.config[time] as StateRouterConfigColumns)[x])) {
 							// First try returning value for specific module
-							if (isTickCallbackReturn((this.config[timeElapsed] as StateRouterConfigGrid)[x][y])) {
-								return (this.config[timeElapsed] as StateRouterConfigGrid)[x][y];
+							if (isTickCallbackReturn((this.config[time] as StateRouterConfigGrid)[x][y])) {
+								return (this.config[time] as StateRouterConfigGrid)[x][y];
 							} else {
-								return (this.config[timeElapsed] as StateRouterConfigColumns)[x];
+								return (this.config[time] as StateRouterConfigColumns)[x];
 							}
 						} else {
-							return this.config[timeElapsed];
+							return this.config[time];
 						}
 					}
 					return;
