@@ -1,14 +1,14 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import { MovePoint } from './move-point';
-import { EASING, HeightMap, HeightMapDuration, TickCallback, TickInfo } from './tick';
+import { EASING, Globals, HeightMap, HeightMapDuration, TickCallback, TickInfo } from './tick';
 
 /**
  * Class handling the tick function
  */
 
 export class Formation {
-	constructor(private grid: Grid, private callback: TickCallback, private globals: any = null) { }
+	constructor(private grid: Grid, private callback: TickCallback, private globals: Globals = {}) { }
 
 	/**
 	 * Calculate height of each module for a duration of time
