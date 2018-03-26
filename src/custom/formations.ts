@@ -73,9 +73,8 @@ export const formations: { [name: string]: TickCallback } = {
 			const sequence = [0, 1, 0, -1];
 
 			// Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
-			let multiplier = 0;
 			const step = Math.floor(timeElapsed / wait) % sequence.length;
-			multiplier = sequence[step];
+			let multiplier = sequence[step];
 
 			if (globals.onlyCompleteCycles) {
 				// Check if we have enough time, otherwise we should default back to 0

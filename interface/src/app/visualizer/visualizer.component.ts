@@ -12,6 +12,13 @@ import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
 import { lastTime } from '../../../../src/lib/formation';
 
+enum PLAYER_STATE {
+	NOT_STARTED = 'Not started',
+	LOADING = 'Loading...',
+	PLAYING = 'Playing',
+	FINISHED = 'Finished'
+}
+
 @Component({
 	selector: 'app-visualizer',
 	templateUrl: './visualizer.component.html',
@@ -447,13 +454,6 @@ export class VisualizerComponent implements OnInit {
 				}
 			});
 		}, 500);
-}
+	}
 
-}
-
-enum PLAYER_STATE {
-	NOT_STARTED = 'Not started',
-	LOADING = 'Loading...',
-	PLAYING = 'Playing',
-	FINISHED = 'Finished'
 }

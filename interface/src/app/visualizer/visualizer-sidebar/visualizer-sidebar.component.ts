@@ -4,6 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { formations } from '../../../../../src/custom/formations';
 import { sequences } from '../../../../../src/custom/sequences';
 
+export enum VISUALIZER_TYPE {
+	FORMATION = 'Formation',
+	SEQUENCE = 'Sequence'
+}
+
 @Component({
 	selector: 'app-visualizer-sidebar',
 	templateUrl: './visualizer-sidebar.component.html',
@@ -80,9 +85,4 @@ export class VisualizerSidebarComponent implements OnInit {
 		});
 	}
 
-}
-
-export enum VISUALIZER_TYPE {
-	FORMATION = 'Formation',
-	SEQUENCE = 'Sequence'
 }
