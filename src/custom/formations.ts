@@ -1,5 +1,5 @@
 import { StateRouter } from '../lib/formation-helpers/state-router';
-import { isCenter, polarCoordinates, toRadians } from '../lib/formation-helpers/utils';
+import { isCenter, polarCoordinates, roundDown, toRadians } from '../lib/formation-helpers/utils';
 import { random } from '../lib/rng';
 import { EASING, TickCallback } from '../lib/tick';
 
@@ -159,6 +159,35 @@ export const formations: { [name: string]: TickCallback } = {
 					easing: EASING.EASE_IN_OUT_EXPO
 				}
 			}
+		}
+	}).export(),
+
+	/**
+	 * Test Hardware Constraints
+	 */
+
+	hardwareConstraints: new StateRouter({
+		0: 0,
+		1000: 5
+	}).export(),
+
+	/**
+	 * Pyramid
+	 */
+
+	pyramid: new StateRouter({
+		0: 0,
+		1: ({ x, y, nx, ny, maxHeight }) => {
+			const { radius } = polarCoordinates(nx, ny, x, y, false);
+			const { radius: maxRadius } = polarCoordinates(nx, ny, nx - 1, ny - 1, false);
+
+			const stepHeight = maxHeight / maxRadius;
+
+			return {
+				height: maxHeight - roundDown(stepHeight * radius, stepHeight),
+				easeDuration: 500 * radius,
+				easing: EASING.LINEAR
+			};
 		}
 	}).export()
 };

@@ -11,7 +11,7 @@ import { Grid } from '../../../../src/lib/grid';
 import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
 import { lastTime } from '../../../../src/lib/formation';
-import { deriveHeightMapDuration } from '../../../../src/lib/hardware-checks';
+import { deriveHeightMapDuration, maxRates } from '../../../../src/lib/hardware-checks';
 
 enum PLAYER_STATE {
 	NOT_STARTED = 'Not started',
@@ -334,11 +334,20 @@ export class VisualizerComponent implements OnInit {
 				const heightMapDurationTimes = Object.keys(heightMapDuration);
 				const heightMapDurationDuration = lastTime(heightMapDuration);
 				const startTime = Number(heightMapDurationTimes[0]);
+
 				console.log('height map duration', heightMapDurationDuration, heightMapDuration);
 				const velocities = deriveHeightMapDuration(heightMapDuration);
 				const accelerations = deriveHeightMapDuration(velocities);
 				console.log('velocities', velocities);
 				console.log('accelerations', accelerations);
+
+				const errors = maxRates(heightMapDuration, {
+					1: 0.1,
+					2: 0.1
+				});
+				if (errors.length > 0) {
+					console.log('ERRORS!', errors);
+				}
 
 				this.state = PLAYER_STATE.PLAYING;
 				this.current = startTime;

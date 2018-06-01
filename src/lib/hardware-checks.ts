@@ -5,22 +5,40 @@ import { HeightMap, HeightMapDuration } from './tick';
  */
 
 export function maxRates(heightMapDuration: HeightMapDuration, limits: { [nthDeriv: number]: number }) {
+	const times = Object.keys(heightMapDuration).map(k => Number(k));
+	if (times.length < 2) {
+		return [];
+	}
+	const interval = times[1] - times[0];
 	const derivatives = Object.keys(limits).map(k => Number(k)).sort();
 	const highestDeriv = derivatives[derivatives.length - 1];
+
+	const errors: Error[] = [];
 
 	let mapDuration = heightMapDuration;
 	for (let i = 1; i <= highestDeriv; i++) {
 		mapDuration = deriveHeightMapDuration(mapDuration);
 
-		const times = Object.keys(mapDuration).map(k => Number(k));
-		for (const time of times) {
-			for (const row of mapDuration[time]) {
-				for (const rate of row) {
-					// @todo
+		const derivTimes = Object.keys(mapDuration).map(k => Number(k));
+		for (const time of derivTimes) {
+			for (let x = 0; x < mapDuration[time].length; x++) {
+				for (let y = 0; y < mapDuration[time].length; y++) {
+					if (Math.abs(mapDuration[time][x][y]) > limits[i]) {
+						errors.push({
+							x,
+							y,
+							time,
+							nthDeriv: i,
+							limit: limits[i],
+							value: mapDuration[time][x][y]
+						});
+					}
 				}
 			}
 		}
 	}
+
+	return errors;
 }
 
 export function deriveHeightMapDuration(heightMapDuration: HeightMapDuration) {
@@ -57,8 +75,11 @@ export function deriveHeightMapDuration(heightMapDuration: HeightMapDuration) {
 	return derivedMapDuration;
 }
 
-export interface RateOver {
-	from: number;
-	to: number;
+export interface Error {
+	x: number;
+	y: number;
+	time: number;
 	nthDeriv: number;
+	limit: number;
+	value: number;
 }
