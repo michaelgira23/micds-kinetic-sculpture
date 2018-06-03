@@ -5,7 +5,6 @@ import { Grid } from './grid';
 import {
 	EASING,
 	FormationSequence,
-	Globals,
 	HeightMap,
 	HeightMapDuration,
 	Sequence,
@@ -13,7 +12,8 @@ import {
 	StoredSequence,
 	TickCallback,
 	Transition,
-	TransitionSequence
+	TransitionSequence,
+	Values
 } from './tick';
 
 const DEFAULT_TRANSITION: Transition = {
@@ -35,7 +35,7 @@ export class Coordinator {
 		this.sequence = [];
 	}
 
-	addFormation(callback: TickCallback, duration: number, globals?: Globals, index: number = this.sequence.length) {
+	addFormation(callback: TickCallback, duration: number, globals?: Values, index: number = this.sequence.length) {
 		this.sequence.splice(index, 0, {
 			type: SEQUENCE_TYPE.FORMATION,
 			formation: new Formation(this.grid, callback, globals),

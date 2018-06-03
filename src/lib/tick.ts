@@ -90,7 +90,8 @@ export type TickCallback = (info: TickInfo) => TickCallbackReturn;
 export type TickCallbackReturn = TickCallback | Partial<MovePointReturn> | number | void;
 
 export interface TickInfo {
-	globals: Globals;
+	globals: Values;
+	variables: Values;
 	maxHeight: number;
 	nx: number;
 	ny: number;
@@ -100,16 +101,17 @@ export interface TickInfo {
 	y: number;
 }
 
-export interface Globals {
-	[key: string]: any;
-}
-
 export interface MovePointReturn {
 	height: number;
 	easing: EASING;
 	waitBefore: number;
 	easeDuration: number;
 	waitAfter: number;
+	variables: Values;
+}
+
+export interface Values {
+	[key: string]: any;
 }
 
 /**

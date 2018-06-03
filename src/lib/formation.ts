@@ -1,14 +1,14 @@
 import { EASING_FUNCTIONS } from './easings';
 import { Grid } from './grid';
 import { MovePoint } from './move-point';
-import { EASING, Globals, HeightMap, HeightMapDuration, TickCallback, TickInfo } from './tick';
+import { EASING, HeightMap, HeightMapDuration, TickCallback, TickInfo, Values } from './tick';
 
 /**
  * Class handling the tick function
  */
 
 export class Formation {
-	constructor(private grid: Grid, private callback: TickCallback, private globals: Globals = {}) { }
+	constructor(private grid: Grid, private callback: TickCallback, private globals: Values = {}) { }
 
 	/**
 	 * Calculate height of each module for a duration of time
@@ -23,6 +23,7 @@ export class Formation {
 				// Remember last updated value/time for easing
 				let previousValue = previousHeightMap[x][y];
 				let waitUntil = offset;
+				const variables = {};
 
 				// Fill times with previous height in case there are absolutely no move points for this module
 				for (let updateTime = offset; updateTime < duration; updateTime += this.grid.updateFrequency) {
@@ -46,6 +47,7 @@ export class Formation {
 
 					const tickInfo: TickInfo = {
 						globals: this.globals,
+						variables,
 						maxHeight: this.grid.maxHeight,
 						nx: this.grid.nx,
 						ny: this.grid.ny,
@@ -76,6 +78,7 @@ export class Formation {
 
 					previousValue = movePoint.height;
 					waitUntil = movePointTime + movePoint.duration;
+					Object.assign(variables, movePoint.variables);
 				}
 			}
 		}
