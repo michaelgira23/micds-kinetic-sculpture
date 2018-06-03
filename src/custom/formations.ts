@@ -1,5 +1,13 @@
 import { StateRouter } from '../lib/formation-helpers/state-router';
-import { isCenter, polarCoordinates, roundDown, toRadians } from '../lib/formation-helpers/utils';
+import {
+	BORDER_ALIGNMENT,
+	borderLevel,
+	isCenter,
+	maxBorderLevel,
+	polarCoordinates,
+	roundDown,
+	toRadians
+} from '../lib/formation-helpers/utils';
 import { random } from '../lib/rng';
 import { EASING, TickCallback } from '../lib/tick';
 
@@ -172,20 +180,18 @@ export const formations: { [name: string]: TickCallback } = {
 	}).export(),
 
 	/**
-	 * Pyramid
+	 * Stack
 	 */
 
-	pyramid: new StateRouter({
+	stack: new StateRouter({
 		0: 0,
 		1: ({ x, y, nx, ny, maxHeight }) => {
-			const { radius } = polarCoordinates(nx, ny, x, y, false);
-			const { radius: maxRadius } = polarCoordinates(nx, ny, nx - 1, ny - 1, false);
-
-			const stepHeight = maxHeight / maxRadius;
-
+			const maxLevel = maxBorderLevel(nx, ny);
+			const stepHeight = maxHeight / (maxLevel + 1);
+			const level = borderLevel(nx, ny, x, y, BORDER_ALIGNMENT.CENTER) + 1;
 			return {
-				height: maxHeight - roundDown(stepHeight * radius, stepHeight),
-				easeDuration: 500 * radius,
+				height: stepHeight * level,
+				easeDuration: 500 * level,
 				easing: EASING.LINEAR
 			};
 		}

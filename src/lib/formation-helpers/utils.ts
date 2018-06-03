@@ -16,6 +16,87 @@ export function isCenter(nx: number, ny: number, x: number, y: number) {
 	};
 }
 
+/**
+ * How far a specific module is from a border. See below for example values for a 5x5 grid:
+ *
+ * =======================
+ * BORDER_ALIGNMENT.CENTER
+ * =======================
+ * +---+---+---+---+---+
+ * | 0 | 0 | 0 | 0 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 1 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 1 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 0 | 0 | 0 | 0 |
+ * +---+---+---+---+---+
+ *
+ *
+ * ====================
+ * BORDER_ALIGNMENT.X/Y
+ * ====================
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ *
+ *
+ * ==================
+ * BORDER_ALIGNMENT.T
+ * ==================
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ * | 1 | 1 | 2 | 1 | 1 |
+ * +---+---+---+---+---+
+ * | 2 | 2 | 2 | 2 | 2 |
+ * +---+---+---+---+---+
+ * | 1 | 1 | 2 | 1 | 1 |
+ * +---+---+---+---+---+
+ * | 0 | 1 | 2 | 1 | 0 |
+ * +---+---+---+---+---+
+ *
+ */
+
+export function borderLevel(nx: number, ny: number, x: number, y: number, alignment = BORDER_ALIGNMENT.CENTER) {
+	// If module's x/y component is less than half, just return it's x/y component.
+	// Otherwise, subtract it from the total grid length essentially flipping it across the midway point.
+	const xLevel = (nx / 2) < (x + 1) ? nx - (x + 1) : x;
+	const yLevel = (ny / 2) < (y + 1) ? ny - (y + 1) : y;
+
+	switch (alignment) {
+		case BORDER_ALIGNMENT.X:
+			return xLevel;
+		case BORDER_ALIGNMENT.Y:
+			return yLevel;
+		case BORDER_ALIGNMENT.T:
+			return Math.max(xLevel, yLevel);
+		default:
+			return Math.min(xLevel, yLevel);
+	}
+}
+
+export function maxBorderLevel(nx: number, ny: number) {
+	return borderLevel(nx, ny, Math.floor(nx / 2), Math.floor(ny / 2));
+}
+
+export enum BORDER_ALIGNMENT {
+	CENTER = 'center',
+	T = 't',
+	X = 'x',
+	Y = 'y'
+}
+
  /**
   * Convert x and y coordinates to polar coordinates in grid
   */
