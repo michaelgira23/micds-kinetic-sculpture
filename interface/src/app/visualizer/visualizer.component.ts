@@ -6,7 +6,7 @@ import { OrbitControls } from '@avatsaev/three-orbitcontrols-ts';
 
 import { VISUALIZER_TYPE } from './visualizer-sidebar/visualizer-sidebar.component';
 
-import { formations } from '../../../../src/custom/formations';
+import { formations, getDefaultDuration } from '../../../../src/custom/formations';
 import { Grid } from '../../../../src/lib/grid';
 import { sequences } from '../../../../src/custom/sequences';
 import { HeightMap } from '../../../../src/lib/tick';
@@ -323,7 +323,7 @@ export class VisualizerComponent implements OnInit {
 
 				switch (this.selectedType) {
 					case VISUALIZER_TYPE.FORMATION:
-						grid.coordinator.addFormation(formations[this.selectedName], 10000);
+						grid.coordinator.addFormation(formations[this.selectedName], getDefaultDuration(this.selectedName));
 						break;
 					case VISUALIZER_TYPE.SEQUENCE:
 						grid.coordinator.import(sequences[this.selectedName]);

@@ -12,6 +12,18 @@ import {
 import { random } from '../lib/rng';
 import { EASING, TickCallback } from '../lib/tick';
 
+// Default durations for formations in milliseconds
+// (Really only used for debugging)
+export const defaultDuration = 10 * 1000;
+export const customDefaultDurations: { [formation: string]: number } = {
+	stack: 20 * 1000
+};
+
+// Get duration for a formation
+export function getDefaultDuration(formation: string) {
+	return customDefaultDurations[formation] ? customDefaultDurations[formation] : defaultDuration;
+}
+
 export const formations: { [name: string]: TickCallback } = {
 
 	/**
