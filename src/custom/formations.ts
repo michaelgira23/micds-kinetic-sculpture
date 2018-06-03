@@ -2,6 +2,7 @@ import { StateRouter } from '../lib/formation-helpers/state-router';
 import {
 	BORDER_ALIGNMENT,
 	borderLevel,
+	debug,
 	isCenter,
 	maxBorderLevel,
 	polarCoordinates,
@@ -81,8 +82,8 @@ export const formations: { [name: string]: TickCallback } = {
 			const sequence = [0, 1, 0, -1];
 
 			// Determine what multiplier should be (rotates through sequence in `wait` ms intervals)
-			const step = Math.floor(timeElapsed / wait) % sequence.length;
-			let multiplier = sequence[step];
+			const currentStep = Math.floor(timeElapsed / wait) % sequence.length;
+			let multiplier = sequence[currentStep];
 
 			if (globals.onlyCompleteCycles) {
 				// Check if we have enough time, otherwise we should default back to 0
@@ -185,15 +186,25 @@ export const formations: { [name: string]: TickCallback } = {
 
 	stack: new StateRouter({
 		0: 0,
-		1: ({ x, y, nx, ny, maxHeight }) => {
+		1: ({ x, y, nx, ny, maxHeight, timeElapsed, variables, previousCalls }) => {
+
+			if (!variables.start) {
+				variables.start = previousCalls;
+			}
+
+			const currentStep = previousCalls - variables.start;
 			const maxLevel = maxBorderLevel(nx, ny);
 			const stepHeight = maxHeight / (maxLevel + 1);
-			const level = borderLevel(nx, ny, x, y, BORDER_ALIGNMENT.CENTER) + 1;
-			return {
-				height: stepHeight * level,
-				easeDuration: 500 * level,
-				easing: EASING.LINEAR
-			};
+			const moduleLevel = borderLevel(nx, ny, x, y, BORDER_ALIGNMENT.CENTER) + 1;
+
+			if (currentStep <= moduleLevel) {
+				return {
+					height: stepHeight * currentStep,
+					easeDuration: 500,
+					easing: EASING.EASE_IN_OUT_QUAD,
+					waitAfter: 500
+				};
+			}
 		}
 	}).export()
 };

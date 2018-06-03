@@ -196,3 +196,13 @@ export function round(num: number, precision = 2) {
 	const roundedTempNumber = Math.round(tempNumber);
 	return roundedTempNumber / factor;
 }
+
+/**
+ * For debugging: Invoke code only under certain parameters
+ */
+
+export function debug(x: number, y: number, callback: () => void, targetX = 0, targetY = 0) {
+	if (x === targetX && y === targetY) {
+		callback();
+	}
+}
