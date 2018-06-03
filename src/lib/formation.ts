@@ -24,6 +24,7 @@ export class Formation {
 				let previousValue = previousHeightMap[x][y];
 				let waitUntil = offset;
 				const variables = {};
+				let previousCalls = 0;
 
 				// Fill times with previous height in case there are absolutely no move points for this module
 				for (let updateTime = offset; updateTime < duration; updateTime += this.grid.updateFrequency) {
@@ -48,6 +49,7 @@ export class Formation {
 					const tickInfo: TickInfo = {
 						globals: this.globals,
 						variables,
+						previousCalls,
 						maxHeight: this.grid.maxHeight,
 						nx: this.grid.nx,
 						ny: this.grid.ny,
@@ -79,6 +81,7 @@ export class Formation {
 					previousValue = movePoint.height;
 					waitUntil = movePointTime + movePoint.duration;
 					Object.assign(variables, movePoint.variables);
+					previousCalls++;
 				}
 			}
 		}

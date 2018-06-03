@@ -92,6 +92,7 @@ export type TickCallbackReturn = TickCallback | Partial<MovePointReturn> | numbe
 export interface TickInfo {
 	globals: Values;
 	variables: Values;
+	previousCalls: number;
 	maxHeight: number;
 	nx: number;
 	ny: number;
