@@ -213,8 +213,8 @@ export const formations: { [name: string]: TickCallback } = {
 				return {
 					height: stepHeight * currentStep,
 					easeDuration: 500,
-					easing: EASING.EASE_IN_OUT_QUAD,
-					waitAfter: 500
+					easing: EASING.EASE_IN_OUT_QUAD
+					// waitAfter: 500
 				};
 			}
 		}
